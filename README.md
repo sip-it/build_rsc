@@ -1,4 +1,3 @@
-
 GitHub Actions pipeline для генерации MikroTik `.rsc` файлов из:
 
 - `runetfreedom/russia-blocked-geoip` (`release/text/*.txt`)

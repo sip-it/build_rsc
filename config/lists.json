@@ -8,7 +8,6 @@
     "comment_prefix": "src=runetfreedom"
   },
   "geoip": [
-    "ru-blocked",
     "ru-blocked-community",
     "re-filter",
     "cloudflare",
@@ -16,7 +15,7 @@
     "ddos-guard"
   ],
   "geosite": [
-    "ru-blocked",
+    "refilter",
     "google",
     "youtube",
     "discord",
