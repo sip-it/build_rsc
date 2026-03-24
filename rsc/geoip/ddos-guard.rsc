@@ -1,22 +1,20 @@
-# generated_at=2026-03-24T15:23:30Z
-# kind=geoip
-# category=ddos-guard
-/ip firewall address-list remove [find where list="rf-geoip-ddos-guard" and comment="src=runetfreedom;kind=geoip;category=ddos-guard"]
+/ip firewall address-list remove [find where list="geoip-ddos-guard" comment="src=github:geoip-ddos-guard"]
+
 /ip firewall address-list
-add list="rf-geoip-ddos-guard" address=45.10.240.0/24 comment="src=runetfreedom;kind=geoip;category=ddos-guard"
-add list="rf-geoip-ddos-guard" address=45.10.243.0/24 comment="src=runetfreedom;kind=geoip;category=ddos-guard"
-add list="rf-geoip-ddos-guard" address=45.140.145.0/24 comment="src=runetfreedom;kind=geoip;category=ddos-guard"
-add list="rf-geoip-ddos-guard" address=45.155.60.0/24 comment="src=runetfreedom;kind=geoip;category=ddos-guard"
-add list="rf-geoip-ddos-guard" address=77.220.207.0/24 comment="src=runetfreedom;kind=geoip;category=ddos-guard"
-add list="rf-geoip-ddos-guard" address=91.215.40.0/22 comment="src=runetfreedom;kind=geoip;category=ddos-guard"
-add list="rf-geoip-ddos-guard" address=95.129.232.0/23 comment="src=runetfreedom;kind=geoip;category=ddos-guard"
-add list="rf-geoip-ddos-guard" address=95.129.234.0/24 comment="src=runetfreedom;kind=geoip;category=ddos-guard"
-add list="rf-geoip-ddos-guard" address=95.129.236.0/23 comment="src=runetfreedom;kind=geoip;category=ddos-guard"
-add list="rf-geoip-ddos-guard" address=176.57.64.0/22 comment="src=runetfreedom;kind=geoip;category=ddos-guard"
-add list="rf-geoip-ddos-guard" address=185.129.100.0/22 comment="src=runetfreedom;kind=geoip;category=ddos-guard"
-add list="rf-geoip-ddos-guard" address=185.149.120.0/24 comment="src=runetfreedom;kind=geoip;category=ddos-guard"
-add list="rf-geoip-ddos-guard" address=185.178.208.0/22 comment="src=runetfreedom;kind=geoip;category=ddos-guard"
-add list="rf-geoip-ddos-guard" address=185.215.4.0/24 comment="src=runetfreedom;kind=geoip;category=ddos-guard"
-add list="rf-geoip-ddos-guard" address=185.223.92.0/24 comment="src=runetfreedom;kind=geoip;category=ddos-guard"
-add list="rf-geoip-ddos-guard" address=217.114.42.0/24 comment="src=runetfreedom;kind=geoip;category=ddos-guard"
-add list="rf-geoip-ddos-guard" address=2a0a:4180::/48 comment="src=runetfreedom;kind=geoip;category=ddos-guard"
+add list="geoip-ddos-guard" address=45.10.240.0/24 comment="src=github:geoip-ddos-guard"
+add list="geoip-ddos-guard" address=45.10.243.0/24 comment="src=github:geoip-ddos-guard"
+add list="geoip-ddos-guard" address=45.140.145.0/24 comment="src=github:geoip-ddos-guard"
+add list="geoip-ddos-guard" address=45.155.60.0/24 comment="src=github:geoip-ddos-guard"
+add list="geoip-ddos-guard" address=77.220.207.0/24 comment="src=github:geoip-ddos-guard"
+add list="geoip-ddos-guard" address=91.215.40.0/22 comment="src=github:geoip-ddos-guard"
+add list="geoip-ddos-guard" address=95.129.232.0/23 comment="src=github:geoip-ddos-guard"
+add list="geoip-ddos-guard" address=95.129.234.0/24 comment="src=github:geoip-ddos-guard"
+add list="geoip-ddos-guard" address=95.129.236.0/23 comment="src=github:geoip-ddos-guard"
+add list="geoip-ddos-guard" address=176.57.64.0/22 comment="src=github:geoip-ddos-guard"
+add list="geoip-ddos-guard" address=185.129.100.0/22 comment="src=github:geoip-ddos-guard"
+add list="geoip-ddos-guard" address=185.149.120.0/24 comment="src=github:geoip-ddos-guard"
+add list="geoip-ddos-guard" address=185.178.208.0/22 comment="src=github:geoip-ddos-guard"
+add list="geoip-ddos-guard" address=185.215.4.0/24 comment="src=github:geoip-ddos-guard"
+add list="geoip-ddos-guard" address=185.223.92.0/24 comment="src=github:geoip-ddos-guard"
+add list="geoip-ddos-guard" address=217.114.42.0/24 comment="src=github:geoip-ddos-guard"
+add list="geoip-ddos-guard" address=2a0a:4180::/48 comment="src=github:geoip-ddos-guard"

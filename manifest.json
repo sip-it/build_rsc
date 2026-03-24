@@ -1,141 +1,182 @@
 {
-  "generated_at": "2026-03-24T15:23:30Z",
-  "publish_repo": "sip-it/build_rsc",
-  "publish_branch": "release",
-  "results": [
+  "generated_at": "2026-03-24T16:42:53.197270+00:00",
+  "sources": {
+    "geoip_base": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geoip/release/text",
+    "geosite_base": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geosite/release"
+  },
+  "files": [
     {
       "kind": "geoip",
-      "category": "ru-blocked",
-      "list_name": "rf-geoip-ru-blocked",
-      "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geoip/release/text/ru-blocked.txt",
-      "output_path": "rsc/geoip/ru-blocked.rsc",
-      "entries": 88606,
-      "skipped": {}
-    },
-    {
-      "kind": "geoip",
-      "category": "ru-blocked-community",
-      "list_name": "rf-geoip-ru-blocked-community",
-      "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geoip/release/text/ru-blocked-community.txt",
-      "output_path": "rsc/geoip/ru-blocked-community.rsc",
-      "entries": 875,
-      "skipped": {}
-    },
-    {
-      "kind": "geoip",
-      "category": "re-filter",
-      "list_name": "rf-geoip-re-filter",
+      "name": "re-filter",
+      "list_name": "geoip-re-filter",
+      "relative_path": "rsc/geoip/re-filter.rsc",
       "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geoip/release/text/re-filter.txt",
-      "output_path": "rsc/geoip/re-filter.rsc",
-      "entries": 36542,
-      "skipped": {}
+      "entries": 36542
     },
     {
       "kind": "geoip",
-      "category": "cloudflare",
-      "list_name": "rf-geoip-cloudflare",
+      "name": "cloudflare",
+      "list_name": "geoip-cloudflare",
+      "relative_path": "rsc/geoip/cloudflare.rsc",
       "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geoip/release/text/cloudflare.txt",
-      "output_path": "rsc/geoip/cloudflare.rsc",
-      "entries": 897,
-      "skipped": {}
+      "entries": 897
     },
     {
       "kind": "geoip",
-      "category": "google",
-      "list_name": "rf-geoip-google",
+      "name": "google",
+      "list_name": "geoip-google",
+      "relative_path": "rsc/geoip/google.rsc",
       "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geoip/release/text/google.txt",
-      "output_path": "rsc/geoip/google.rsc",
-      "entries": 5665,
-      "skipped": {}
+      "entries": 5665
     },
     {
       "kind": "geoip",
-      "category": "ddos-guard",
-      "list_name": "rf-geoip-ddos-guard",
+      "name": "ddos-guard",
+      "list_name": "geoip-ddos-guard",
+      "relative_path": "rsc/geoip/ddos-guard.rsc",
       "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geoip/release/text/ddos-guard.txt",
-      "output_path": "rsc/geoip/ddos-guard.rsc",
-      "entries": 17,
-      "skipped": {}
+      "entries": 17
     },
     {
       "kind": "geosite",
-      "category": "ru-blocked",
-      "list_name": "rf-geosite-ru-blocked",
-      "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geosite/release/ru-blocked.txt",
-      "output_path": "rsc/geosite/ru-blocked.rsc",
-      "entries": 74658,
-      "skipped": {}
+      "name": "refilter",
+      "list_name": "geosite-refilter",
+      "relative_path": "rsc/geosite/refilter.rsc",
+      "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geosite/release/refilter.txt",
+      "entries": 78787
     },
     {
       "kind": "geosite",
-      "category": "google",
-      "list_name": "rf-geosite-google",
+      "name": "google",
+      "list_name": "geosite-google",
+      "relative_path": "rsc/geosite/google.rsc",
       "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geosite/release/google.txt",
-      "output_path": "rsc/geosite/google.rsc",
-      "entries": 871,
-      "skipped": {
-        "not_fqdn": 15,
-        "unsupported_pattern": 214,
-        "unsupported_operator": 2
-      }
+      "entries": 870
     },
     {
       "kind": "geosite",
-      "category": "youtube",
-      "list_name": "rf-geosite-youtube",
+      "name": "youtube",
+      "list_name": "geosite-youtube",
+      "relative_path": "rsc/geosite/youtube.rsc",
       "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geosite/release/youtube.txt",
-      "output_path": "rsc/geosite/youtube.rsc",
-      "entries": 175,
-      "skipped": {
-        "not_fqdn": 1,
-        "unsupported_pattern": 2
-      }
+      "entries": 175
     },
     {
       "kind": "geosite",
-      "category": "discord",
-      "list_name": "rf-geosite-discord",
+      "name": "discord",
+      "list_name": "geosite-discord",
+      "relative_path": "rsc/geosite/discord.rsc",
       "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geosite/release/discord.txt",
-      "output_path": "rsc/geosite/discord.rsc",
-      "entries": 28,
-      "skipped": {}
+      "entries": 28
     },
     {
       "kind": "geosite",
-      "category": "category-ads-all",
-      "list_name": "rf-geosite-category-ads-all",
+      "name": "category-ads-all",
+      "list_name": "geosite-category-ads-all",
+      "relative_path": "rsc/geosite/category-ads-all.rsc",
       "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geosite/release/category-ads-all.txt",
-      "output_path": "rsc/geosite/category-ads-all.rsc",
-      "entries": 155840,
-      "skipped": {}
+      "entries": 155926
     },
     {
       "kind": "geosite",
-      "category": "win-spy",
-      "list_name": "rf-geosite-win-spy",
+      "name": "win-spy",
+      "list_name": "geosite-win-spy",
+      "relative_path": "rsc/geosite/win-spy.rsc",
       "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geosite/release/win-spy.txt",
-      "output_path": "rsc/geosite/win-spy.rsc",
-      "entries": 347,
-      "skipped": {}
+      "entries": 347
     },
     {
       "kind": "geosite",
-      "category": "win-update",
-      "list_name": "rf-geosite-win-update",
+      "name": "win-update",
+      "list_name": "geosite-win-update",
+      "relative_path": "rsc/geosite/win-update.rsc",
       "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geosite/release/win-update.txt",
-      "output_path": "rsc/geosite/win-update.rsc",
-      "entries": 538,
-      "skipped": {}
+      "entries": 538
     },
     {
       "kind": "geosite",
-      "category": "win-extra",
-      "list_name": "rf-geosite-win-extra",
+      "name": "win-extra",
+      "list_name": "geosite-win-extra",
+      "relative_path": "rsc/geosite/win-extra.rsc",
       "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geosite/release/win-extra.txt",
-      "output_path": "rsc/geosite/win-extra.rsc",
-      "entries": 399,
-      "skipped": {}
+      "entries": 399
     }
   ],
-  "errors": []
+  "stats": {
+    "geoip": {
+      "re-filter": {
+        "entries": 36542,
+        "invalid_or_skipped": 0,
+        "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geoip/release/text/re-filter.txt"
+      },
+      "cloudflare": {
+        "entries": 897,
+        "invalid_or_skipped": 0,
+        "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geoip/release/text/cloudflare.txt"
+      },
+      "google": {
+        "entries": 5665,
+        "invalid_or_skipped": 0,
+        "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geoip/release/text/google.txt"
+      },
+      "ddos-guard": {
+        "entries": 17,
+        "invalid_or_skipped": 0,
+        "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geoip/release/text/ddos-guard.txt"
+      }
+    },
+    "geosite": {
+      "refilter": {
+        "entries": 78787,
+        "skipped": {
+          "invalid_domain": 2200
+        },
+        "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geosite/release/refilter.txt"
+      },
+      "google": {
+        "entries": 870,
+        "skipped": {
+          "invalid_domain": 16,
+          "unsupported_value": 214,
+          "unsupported_prefix": 2
+        },
+        "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geosite/release/google.txt"
+      },
+      "youtube": {
+        "entries": 175,
+        "skipped": {
+          "invalid_domain": 1,
+          "unsupported_value": 2
+        },
+        "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geosite/release/youtube.txt"
+      },
+      "discord": {
+        "entries": 28,
+        "skipped": {},
+        "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geosite/release/discord.txt"
+      },
+      "category-ads-all": {
+        "entries": 155926,
+        "skipped": {
+          "invalid_domain": 5
+        },
+        "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geosite/release/category-ads-all.txt"
+      },
+      "win-spy": {
+        "entries": 347,
+        "skipped": {},
+        "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geosite/release/win-spy.txt"
+      },
+      "win-update": {
+        "entries": 538,
+        "skipped": {},
+        "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geosite/release/win-update.txt"
+      },
+      "win-extra": {
+        "entries": 399,
+        "skipped": {},
+        "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geosite/release/win-extra.txt"
+      }
+    }
+  }
 }
