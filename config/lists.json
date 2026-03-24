@@ -1,0 +1,28 @@
+{
+  "source": {
+    "geoip_base_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geoip/release/text",
+    "geosite_base_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geosite/release"
+  },
+  "mikrotik": {
+    "list_prefix": "rf",
+    "comment_prefix": "src=runetfreedom"
+  },
+  "geoip": [
+    "ru-blocked",
+    "ru-blocked-community",
+    "re-filter",
+    "cloudflare",
+    "google",
+    "ddos-guard"
+  ],
+  "geosite": [
+    "ru-blocked",
+    "google",
+    "youtube",
+    "discord",
+    "category-ads-all",
+    "win-spy",
+    "win-update",
+    "win-extra"
+  ]
+}
