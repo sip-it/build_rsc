@@ -4,292 +4,307 @@ from __future__ import annotations
 import argparse
 import ipaddress
 import json
-import os
+import pathlib
 import re
+import shutil
 import sys
-from collections import Counter
-from dataclasses import dataclass
+import urllib.error
+import urllib.request
+from collections import OrderedDict
 from datetime import datetime, timezone
-from pathlib import Path
 from typing import Iterable
-from urllib.error import HTTPError, URLError
-from urllib.parse import urlsplit
-from urllib.request import Request, urlopen
 
-USER_AGENT = "github-actions-mikrotik-rsc/1.0"
-COMMENT_RE = re.compile(r"\s+#.*$")
-DOMAIN_RE = re.compile(r"^[A-Za-z0-9.-]+$")
-UNSUPPORTED_PREFIXES = (
+DOMAIN_RE = re.compile(r"^(?=.{1,253}$)(?!-)(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,63}\.?$")
+COMMENT_PREFIXES = ("#", ";", "//")
+UNSUPPORTED_GEOSITE_PREFIXES = (
     "regexp:",
     "keyword:",
     "include:",
-    "regexp(",
-    "domain-regexp:",
+    "cidr:",
+    "geoip:",
+    "process:",
+    "port:",
+    "@",
 )
 
 
-@dataclass
-class BuildResult:
-    kind: str
-    category: str
-    list_name: str
-    source_url: str
-    output_path: str
-    entries: int
-    skipped: dict[str, int]
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Build MikroTik RSC files from geoip/geosite text lists")
+    parser.add_argument("--config", default="config/lists.json", help="Path to lists.json")
+    parser.add_argument("--output", default="dist", help="Output directory")
+    return parser.parse_args()
 
 
-def utc_now() -> str:
-    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+def load_json(path: pathlib.Path) -> dict:
+    with path.open("r", encoding="utf-8") as fh:
+        return json.load(fh)
 
 
-def slugify(value: str) -> str:
-    return re.sub(r"[^a-z0-9-]+", "-", value.lower()).strip("-")
+def fetch_text(url: str) -> str:
+    req = urllib.request.Request(
+        url,
+        headers={
+            "User-Agent": "github-actions-mikrotik-rsc/1.0",
+            "Accept": "text/plain, */*",
+        },
+    )
+    with urllib.request.urlopen(req, timeout=60) as resp:
+        charset = resp.headers.get_content_charset() or "utf-8"
+        return resp.read().decode(charset, errors="replace")
 
 
-def fetch_text(url: str, timeout: int = 120) -> str:
-    req = Request(url, headers={"User-Agent": USER_AGENT})
+def ensure_clean_dir(path: pathlib.Path) -> None:
+    if path.exists():
+        shutil.rmtree(path)
+    path.mkdir(parents=True, exist_ok=True)
+
+
+def normalize_geoip_line(line: str) -> str | None:
+    value = line.strip()
+    if not value or value.startswith(COMMENT_PREFIXES):
+        return None
+    value = value.split("#", 1)[0].strip()
+    value = value.split(";", 1)[0].strip()
+    if not value:
+        return None
     try:
-        with urlopen(req, timeout=timeout) as response:
-            return response.read().decode("utf-8", errors="replace")
-    except HTTPError as exc:
-        raise RuntimeError(f"HTTP {exc.code} while fetching {url}") from exc
-    except URLError as exc:
-        raise RuntimeError(f"Failed to fetch {url}: {exc}") from exc
+        if "/" in value:
+            network = ipaddress.ip_network(value, strict=False)
+            return str(network)
+        addr = ipaddress.ip_address(value)
+        return str(addr)
+    except ValueError:
+        return None
 
 
-def sort_networks(values: Iterable[str]) -> list[str]:
-    nets = [ipaddress.ip_network(v, strict=False) for v in values]
-    nets.sort(key=lambda n: (n.version, int(n.network_address), n.prefixlen))
-    return [str(n) for n in nets]
-
-
-def strip_inline_comment(line: str) -> str:
-    return COMMENT_RE.sub("", line).strip()
-
-
-def parse_geoip(text: str) -> tuple[list[str], Counter]:
-    entries: set[str] = set()
-    skipped: Counter[str] = Counter()
-
-    for raw in text.splitlines():
-        line = strip_inline_comment(raw)
-        if not line or line.startswith(("#", ";", "//")):
-            continue
-
-        token = line.split()[0]
-        if "," in token:
-            parts = [p.strip() for p in token.split(",") if p.strip()]
-            token = parts[-1]
-
-        try:
-            network = ipaddress.ip_network(token, strict=False)
-        except ValueError:
-            skipped["invalid_ip"] += 1
-            continue
-
-        entries.add(str(network))
-
-    return sort_networks(entries), skipped
-
-
-def normalize_domain(value: str) -> tuple[str | None, str | None]:
-    line = strip_inline_comment(value)
-    if not line or line.startswith(("#", ";", "//")):
+def normalize_geosite_line(line: str) -> tuple[str | None, str | None]:
+    raw = line.strip()
+    if not raw:
+        return None, None
+    if raw.startswith(COMMENT_PREFIXES):
         return None, None
 
-    lower = line.lower()
-    if lower.startswith(UNSUPPORTED_PREFIXES):
-        return None, "unsupported_operator"
+    raw = raw.split("#", 1)[0].strip()
+    raw = raw.split(";", 1)[0].strip()
+    if not raw:
+        return None, None
 
-    for prefix in ("full:", "domain:"):
-        if lower.startswith(prefix):
-            line = line[len(prefix):].strip()
-            lower = line.lower()
-            break
+    lower = raw.lower()
+    if lower.startswith(UNSUPPORTED_GEOSITE_PREFIXES):
+        return None, "unsupported_prefix"
 
-    if lower.startswith(("http://", "https://")):
-        parsed = urlsplit(line)
-        line = parsed.hostname or ""
+    value = raw
+    if lower.startswith("full:"):
+        value = raw[5:].strip()
+    elif lower.startswith("domain:"):
+        value = raw[7:].strip()
 
-    if line.startswith("||"):
-        line = line[2:]
-    elif line.startswith("|"):
-        line = line[1:]
+    if " @" in value:
+        value = value.split(" @", 1)[0].strip()
+    if " " in value:
+        value = value.split()[0].strip()
 
-    while line.startswith(("*.", "+.", ".")):
-        if line.startswith(("*.", "+.")):
-            line = line[2:]
-        else:
-            line = line[1:]
+    value = value.lstrip(".")
+    if value.startswith("*."):
+        value = value[2:]
 
-    line = line.split("/")[0].split("^")[0].strip().strip(".").lower()
-
-    if not line:
+    if not value:
         return None, "empty"
-    if any(ch in line for ch in ("*", "[", "]", "(", ")", "{", "}", "\\", "!", "@")):
-        return None, "unsupported_pattern"
-    if not DOMAIN_RE.fullmatch(line):
+
+    if ":" in value or "/" in value:
+        return None, "unsupported_value"
+
+    if not DOMAIN_RE.match(value):
         return None, "invalid_domain"
-    if "." not in line:
-        return None, "not_fqdn"
 
-    return line, None
+    return value.lower().rstrip("."), None
 
 
-def parse_geosite(text: str) -> tuple[list[str], Counter]:
-    entries: set[str] = set()
-    skipped: Counter[str] = Counter()
-
-    for raw in text.splitlines():
-        domain, reason = normalize_domain(raw)
-        if domain:
-            entries.add(domain)
-        elif reason:
-            skipped[reason] += 1
-
-    return sorted(entries), skipped
+def write_geoip_rsc(path: pathlib.Path, list_name: str, entries: Iterable[str], source_name: str) -> int:
+    count = 0
+    comment = f"src=github:{source_name}"
+    with path.open("w", encoding="utf-8", newline="\n") as fh:
+        fh.write(f'/ip firewall address-list remove [find where list="{list_name}" comment="{comment}"]\n\n')
+        fh.write("/ip firewall address-list\n")
+        for entry in entries:
+            fh.write(f'add list="{list_name}" address={entry} comment="{comment}"\n')
+            count += 1
+    return count
 
 
-def render_rsc(kind: str, category: str, list_name: str, entries: list[str], comment_prefix: str, generated_at: str) -> str:
-    tag = f"{comment_prefix};kind={kind};category={category}"
+def write_geosite_rsc(path: pathlib.Path, list_name: str, entries: Iterable[str], source_name: str) -> int:
+    count = 0
+    comment = f"src=github:{source_name}"
+    with path.open("w", encoding="utf-8", newline="\n") as fh:
+        fh.write(f'/ip firewall address-list remove [find where list="{list_name}" comment="{comment}"]\n\n')
+        fh.write("/ip firewall address-list\n")
+        for entry in entries:
+            fh.write(f'add list="{list_name}" address="{entry}" comment="{comment}"\n')
+            count += 1
+    return count
+
+
+def render_routeros_update_script(manifest: dict) -> str:
     lines = [
-        f"# generated_at={generated_at}",
-        f"# kind={kind}",
-        f"# category={category}",
-        f'/ip firewall address-list remove [find where list="{list_name}" and comment="{tag}"]',
-        "/ip firewall address-list",
+        '# Example update script for RouterOS',
+        '/system script',
+        'add name=rf-update-all policy=read,write,test source={',
+        '    :local baseUrl "https://raw.githubusercontent.com/<OWNER>/<REPO>/release"',
+        '    :local files {',
     ]
 
-    if kind == "geoip":
-        for entry in entries:
-            lines.append(f'add list="{list_name}" address={entry} comment="{tag}"')
-    else:
-        for entry in entries:
-            lines.append(f'add list="{list_name}" address="{entry}" comment="{tag}"')
+    file_entries: list[str] = []
+    for item in manifest["files"]:
+        file_entries.append(f'        "{item["relative_path"]}";')
 
-    lines.append("")
-    return "\n".join(lines)
-
-
-def build_one(kind: str, category: str, cfg: dict, out_dir: Path, generated_at: str) -> BuildResult:
-    list_prefix = cfg["mikrotik"]["list_prefix"]
-    comment_prefix = cfg["mikrotik"]["comment_prefix"]
-    list_name = f"{list_prefix}-{kind}-{slugify(category)}"
-
-    if kind == "geoip":
-        url = f"{cfg['source']['geoip_base_url'].rstrip('/')}/{category}.txt"
-        content = fetch_text(url)
-        entries, skipped = parse_geoip(content)
-    else:
-        url = f"{cfg['source']['geosite_base_url'].rstrip('/')}/{category}.txt"
-        content = fetch_text(url)
-        entries, skipped = parse_geosite(content)
-
-    rel_path = Path("rsc") / kind / f"{category}.rsc"
-    abs_path = out_dir / rel_path
-    abs_path.parent.mkdir(parents=True, exist_ok=True)
-    abs_path.write_text(render_rsc(kind, category, list_name, entries, comment_prefix, generated_at), encoding="utf-8")
-
-    return BuildResult(
-        kind=kind,
-        category=category,
-        list_name=list_name,
-        source_url=url,
-        output_path=rel_path.as_posix(),
-        entries=len(entries),
-        skipped=dict(skipped),
+    if file_entries:
+        lines.extend(file_entries)
+    lines.extend(
+        [
+            '    }',
+            '    :foreach f in=$files do={',
+            '        :local url ($baseUrl . "/" . $f)',
+            '        :local dst ("tmp-" . [:pick $f ([:find $f "/" -1] + 1) [:len $f]])',
+            '        :log info ("rf-update-all: downloading " . $url)',
+            '        :do {',
+            '            /tool fetch url=$url dst-path=$dst keep-result=yes',
+            '            :if ([:len [/file find where name=$dst]] = 0) do={',
+            '                :error ("download failed: " . $f)',
+            '            }',
+            '            /import file-name=$dst verbose=yes',
+            '            /file remove [find where name=$dst]',
+            '            :log info ("rf-update-all: imported " . $f)',
+            '        } on-error={',
+            '            :log error ("rf-update-all: failed " . $f)',
+            '            :if ([:len [/file find where name=$dst]] > 0) do={',
+            '                /file remove [find where name=$dst]',
+            '            }',
+            '        }',
+            '    }',
+            '}',
+        ]
     )
-
-
-def write_routeros_helper(results: list[BuildResult], out_dir: Path, publish_repo: str, publish_branch: str) -> None:
-    base_url = f"https://raw.githubusercontent.com/{publish_repo}/{publish_branch}"
-    files = ";".join(result.output_path for result in results)
-    helper = f'''# import this file into RouterOS, then create /system scheduler on rf-update-all
-/system script
-add name="rf-update-all" policy=read,write,test source={{
-    :local baseUrl "{base_url}"
-    :local files {{{';'.join(f'"{result.output_path}"' for result in results)}}}
-
-    :foreach f in=$files do={{
-        :local url ($baseUrl . "/" . $f)
-        :local dst ("tmp-" . [:pick $f ([:find $f "/" -1] + 1) [:len $f]])
-
-        :log info ("rf-update-all: fetching " . $url)
-        :do {{
-            /tool fetch url=$url dst-path=$dst keep-result=yes
-            /import file-name=$dst verbose=yes
-            /file remove [find where name=$dst]
-        }} on-error={{
-            :log error ("rf-update-all: failed " . $url)
-            :if ([:len [/file find where name=$dst]] > 0) do={{
-                /file remove [find where name=$dst]
-            }}
-        }}
-    }}
-}}
-'''
-    helper_dir = out_dir / "routeros"
-    helper_dir.mkdir(parents=True, exist_ok=True)
-    (helper_dir / "rf-update-all.example.rsc").write_text(helper, encoding="utf-8")
+    return "\n".join(lines) + "\n"
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Build MikroTik .rsc address-list files from runetfreedom sources")
-    parser.add_argument("--config", required=True)
-    parser.add_argument("--output", required=True)
-    parser.add_argument("--publish-repo", default=os.getenv("GITHUB_REPOSITORY", "OWNER/REPO"))
-    parser.add_argument("--publish-branch", default="release")
-    args = parser.parse_args()
+    args = parse_args()
+    config_path = pathlib.Path(args.config).resolve()
+    output_root = pathlib.Path(args.output).resolve()
 
-    config = json.loads(Path(args.config).read_text(encoding="utf-8"))
-    out_dir = Path(args.output)
-    out_dir.mkdir(parents=True, exist_ok=True)
-    generated_at = utc_now()
+    config = load_json(config_path)
+    sources = config["sources"]
+    geoip_base = sources["geoip_base"].rstrip("/")
+    geosite_base = sources["geosite_base"].rstrip("/")
 
-    results: list[BuildResult] = []
-    errors: list[str] = []
+    ensure_clean_dir(output_root)
+    rsc_geoip_dir = output_root / "rsc" / "geoip"
+    rsc_geosite_dir = output_root / "rsc" / "geosite"
+    routeros_dir = output_root / "routeros"
+    raw_dir = output_root / "raw"
+    for directory in (rsc_geoip_dir, rsc_geosite_dir, routeros_dir, raw_dir):
+        directory.mkdir(parents=True, exist_ok=True)
 
-    for kind in ("geoip", "geosite"):
-        for category in config.get(kind, []):
-            print(f"::group::build {kind}:{category}")
-            try:
-                result = build_one(kind, category, config, out_dir, generated_at)
-                results.append(result)
-                print(f"source={result.source_url}")
-                print(f"entries={result.entries}")
-                if result.skipped:
-                    print(f"skipped={json.dumps(result.skipped, ensure_ascii=False, sort_keys=True)}")
-            except Exception as exc:  # noqa: BLE001
-                msg = f"{kind}:{category}: {exc}"
-                errors.append(msg)
-                print(f"::error::{msg}")
-            finally:
-                print("::endgroup::")
-
-    manifest = {
-        "generated_at": generated_at,
-        "publish_repo": args.publish_repo,
-        "publish_branch": args.publish_branch,
-        "results": [result.__dict__ for result in results],
-        "errors": errors,
+    manifest: dict = {
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "sources": sources,
+        "files": [],
+        "stats": {"geoip": {}, "geosite": {}},
     }
-    (out_dir / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    if args.publish_repo and "/" in args.publish_repo:
-        write_routeros_helper(results, out_dir, args.publish_repo, args.publish_branch)
+    for name in config.get("geoip", []):
+        print(f"build geoip:{name}")
+        url = f"{geoip_base}/{name}.txt"
+        try:
+            content = fetch_text(url)
+        except urllib.error.URLError as exc:
+            raise SystemExit(f"failed to download {url}: {exc}") from exc
 
-    urls_txt = []
-    if args.publish_repo and "/" in args.publish_repo:
-        raw_base = f"https://raw.githubusercontent.com/{args.publish_repo}/{args.publish_branch}"
-        for item in results:
-            urls_txt.append(f"{item.list_name} {raw_base}/{item.output_path}")
-        (out_dir / "routeros" / "urls.txt").write_text("\n".join(urls_txt) + "\n", encoding="utf-8")
+        source_name = f"geoip-{name}"
+        raw_path = raw_dir / f"{source_name}.txt"
+        raw_path.write_text(content, encoding="utf-8", newline="\n")
 
-    if errors:
-        return 1
+        entries: OrderedDict[str, None] = OrderedDict()
+        invalid = 0
+        for line in content.splitlines():
+            normalized = normalize_geoip_line(line)
+            if normalized is None:
+                invalid += 1
+                continue
+            entries.setdefault(normalized, None)
+
+        list_name = f"geoip-{name}"
+        relative_path = f"rsc/geoip/{name}.rsc"
+        rsc_path = rsc_geoip_dir / f"{name}.rsc"
+        written = write_geoip_rsc(rsc_path, list_name, entries.keys(), source_name)
+
+        manifest["files"].append(
+            {
+                "kind": "geoip",
+                "name": name,
+                "list_name": list_name,
+                "relative_path": relative_path,
+                "source_url": url,
+                "entries": written,
+            }
+        )
+        manifest["stats"]["geoip"][name] = {
+            "entries": written,
+            "invalid_or_skipped": invalid,
+            "source_url": url,
+        }
+
+    for name in config.get("geosite", []):
+        print(f"build geosite:{name}")
+        url = f"{geosite_base}/{name}.txt"
+        try:
+            content = fetch_text(url)
+        except urllib.error.URLError as exc:
+            raise SystemExit(f"failed to download {url}: {exc}") from exc
+
+        source_name = f"geosite-{name}"
+        raw_path = raw_dir / f"{source_name}.txt"
+        raw_path.write_text(content, encoding="utf-8", newline="\n")
+
+        entries: OrderedDict[str, None] = OrderedDict()
+        skipped: dict[str, int] = {}
+        for line in content.splitlines():
+            normalized, reason = normalize_geosite_line(line)
+            if normalized is None:
+                if reason:
+                    skipped[reason] = skipped.get(reason, 0) + 1
+                continue
+            entries.setdefault(normalized, None)
+
+        list_name = f"geosite-{name}"
+        relative_path = f"rsc/geosite/{name}.rsc"
+        rsc_path = rsc_geosite_dir / f"{name}.rsc"
+        written = write_geosite_rsc(rsc_path, list_name, entries.keys(), source_name)
+
+        manifest["files"].append(
+            {
+                "kind": "geosite",
+                "name": name,
+                "list_name": list_name,
+                "relative_path": relative_path,
+                "source_url": url,
+                "entries": written,
+            }
+        )
+        manifest["stats"]["geosite"][name] = {
+            "entries": written,
+            "skipped": skipped,
+            "source_url": url,
+        }
+
+    manifest_path = output_root / "manifest.json"
+    manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+    update_script = render_routeros_update_script(manifest)
+    (routeros_dir / "rf-update-all.example.rsc").write_text(update_script, encoding="utf-8", newline="\n")
+
     return 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    sys.exit(main())
