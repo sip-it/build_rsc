@@ -365,8 +365,7 @@ def main() -> int:
         raise SystemExit(f"failed to download {geoip_url}: {exc}") from exc
 
     geoip_source_name = f"geoip-{geoip_name}"
-    (raw_dir / f"{geoip_source_name}.txt").write_text(geoip_content, encoding="utf-8", newline="
-")
+    (raw_dir / f"{geoip_source_name}.txt").write_text(geoip_content, encoding="utf-8", newline="\n")
     geoip_entries: OrderedDict[str, None] = OrderedDict()
     geoip_invalid = 0
     for line in geoip_content.splitlines():
@@ -395,8 +394,7 @@ def main() -> int:
         raise SystemExit(f"failed to download {geosite_url}: {exc}") from exc
 
     geosite_source_name = f"geosite-{geosite_name}"
-    (raw_dir / f"{geosite_source_name}.txt").write_text(geosite_content, encoding="utf-8", newline="
-")
+    (raw_dir / f"{geosite_source_name}.txt").write_text(geosite_content, encoding="utf-8", newline="\n")
     geosite_entries: OrderedDict[str, None] = OrderedDict()
     geosite_skipped: dict[str, int] = {}
     for line in geosite_content.splitlines():
@@ -427,8 +425,7 @@ def main() -> int:
                 "status": "skipped_optional_missing",
             }
         else:
-            (raw_dir / "self-list.txt").write_text(self_list_content, encoding="utf-8", newline="
-")
+            (raw_dir / "self-list.txt").write_text(self_list_content, encoding="utf-8", newline="\n")
             self_geoip_entries: OrderedDict[str, None] = OrderedDict()
             self_geosite_entries: OrderedDict[str, None] = OrderedDict()
             self_invalid = 0
@@ -479,8 +476,7 @@ def main() -> int:
         raise SystemExit(f"failed to download {dns_adlist_url}: {exc}") from exc
 
     dns_source_name = f"geosite-{dns_adlist_name}"
-    (raw_dir / f"{dns_source_name}.txt").write_text(dns_adlist_content, encoding="utf-8", newline="
-")
+    (raw_dir / f"{dns_source_name}.txt").write_text(dns_adlist_content, encoding="utf-8", newline="\n")
     dns_entries: OrderedDict[str, None] = OrderedDict()
     dns_skipped: dict[str, int] = {}
     for line in dns_adlist_content.splitlines():
@@ -497,12 +493,9 @@ def main() -> int:
         "source_url": dns_adlist_url,
     }
 
-    combined_path.write_text("\n".join(combined_lines).rstrip() + "\n", encoding="utf-8", newline="
-")
-    dns_adlist_path.write_text("\n".join(dns_entries.keys()).rstrip() + "\n", encoding="utf-8", newline="
-")
-    routeros_path.write_text(render_routeros_update_script(combined_relative_path, raw_base_url), encoding="utf-8", newline="
-")
+    combined_path.write_text("\n".join(combined_lines).rstrip() + "\n", encoding="utf-8", newline="\n")
+    dns_adlist_path.write_text("\n".join(dns_entries.keys()).rstrip() + "\n", encoding="utf-8", newline="\n")
+    routeros_path.write_text(render_routeros_update_script(combined_relative_path, raw_base_url), encoding="utf-8", newline="\n")
     readme_path.write_text(
         render_readme(
             generated_at=generated_at,
@@ -517,11 +510,9 @@ def main() -> int:
             self_list_optional=self_list_optional,
         ),
         encoding="utf-8",
-        newline="
-",
+        newline="\n",
     )
-    (output_root / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "
-", encoding="utf-8")
+    (output_root / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
     return 0
 
