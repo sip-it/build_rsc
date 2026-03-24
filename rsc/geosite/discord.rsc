@@ -1,0 +1,33 @@
+# generated_at=2026-03-24T15:23:30Z
+# kind=geosite
+# category=discord
+/ip firewall address-list remove [find where list="rf-geosite-discord" and comment="src=runetfreedom;kind=geosite;category=discord"]
+/ip firewall address-list
+add list="rf-geosite-discord" address="airhorn.solutions" comment="src=runetfreedom;kind=geosite;category=discord"
+add list="rf-geosite-discord" address="airhornbot.com" comment="src=runetfreedom;kind=geosite;category=discord"
+add list="rf-geosite-discord" address="bigbeans.solutions" comment="src=runetfreedom;kind=geosite;category=discord"
+add list="rf-geosite-discord" address="dis.gd" comment="src=runetfreedom;kind=geosite;category=discord"
+add list="rf-geosite-discord" address="discord-activities.com" comment="src=runetfreedom;kind=geosite;category=discord"
+add list="rf-geosite-discord" address="discord-attachments-uploads-prd.storage.googleapis.com" comment="src=runetfreedom;kind=geosite;category=discord"
+add list="rf-geosite-discord" address="discord.co" comment="src=runetfreedom;kind=geosite;category=discord"
+add list="rf-geosite-discord" address="discord.com" comment="src=runetfreedom;kind=geosite;category=discord"
+add list="rf-geosite-discord" address="discord.design" comment="src=runetfreedom;kind=geosite;category=discord"
+add list="rf-geosite-discord" address="discord.dev" comment="src=runetfreedom;kind=geosite;category=discord"
+add list="rf-geosite-discord" address="discord.gg" comment="src=runetfreedom;kind=geosite;category=discord"
+add list="rf-geosite-discord" address="discord.gift" comment="src=runetfreedom;kind=geosite;category=discord"
+add list="rf-geosite-discord" address="discord.gifts" comment="src=runetfreedom;kind=geosite;category=discord"
+add list="rf-geosite-discord" address="discord.media" comment="src=runetfreedom;kind=geosite;category=discord"
+add list="rf-geosite-discord" address="discord.new" comment="src=runetfreedom;kind=geosite;category=discord"
+add list="rf-geosite-discord" address="discord.store" comment="src=runetfreedom;kind=geosite;category=discord"
+add list="rf-geosite-discord" address="discord.tools" comment="src=runetfreedom;kind=geosite;category=discord"
+add list="rf-geosite-discord" address="discordactivities.com" comment="src=runetfreedom;kind=geosite;category=discord"
+add list="rf-geosite-discord" address="discordapp.com" comment="src=runetfreedom;kind=geosite;category=discord"
+add list="rf-geosite-discord" address="discordapp.io" comment="src=runetfreedom;kind=geosite;category=discord"
+add list="rf-geosite-discord" address="discordapp.net" comment="src=runetfreedom;kind=geosite;category=discord"
+add list="rf-geosite-discord" address="discordcdn.com" comment="src=runetfreedom;kind=geosite;category=discord"
+add list="rf-geosite-discord" address="discordmerch.com" comment="src=runetfreedom;kind=geosite;category=discord"
+add list="rf-geosite-discord" address="discordpartygames.com" comment="src=runetfreedom;kind=geosite;category=discord"
+add list="rf-geosite-discord" address="discordsays.com" comment="src=runetfreedom;kind=geosite;category=discord"
+add list="rf-geosite-discord" address="discordstatus.com" comment="src=runetfreedom;kind=geosite;category=discord"
+add list="rf-geosite-discord" address="hammerandchisel.ssl.zendesk.com" comment="src=runetfreedom;kind=geosite;category=discord"
+add list="rf-geosite-discord" address="watchanimeattheoffice.com" comment="src=runetfreedom;kind=geosite;category=discord"
