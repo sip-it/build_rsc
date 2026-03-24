@@ -1,0 +1,90 @@
+name: build-mikrotik-rsc
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-mikrotik-rsc.yml"
+      - "scripts/build_rsc.py"
+      - "config/lists.json"
+  schedule:
+    - cron: "25 */6 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-mikrotik-rsc
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build RSC files
+        run: |
+          python scripts/build_rsc.py \
+            --config config/lists.json \
+            --output dist \
+            --publish-repo "${GITHUB_REPOSITORY}" \
+            --publish-branch release
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mikrotik-rsc
+          path: dist/
+          if-no-files-found: error
+
+      - name: Prepare publish tree
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/mikrotik-rsc-release
+          mkdir -p /tmp/mikrotik-rsc-release
+          cp -R dist/. /tmp/mikrotik-rsc-release/
+          touch /tmp/mikrotik-rsc-release/.nojekyll
+
+      - name: Publish to release branch
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          rm -rf /tmp/release-worktree
+          git fetch origin
+
+          if git ls-remote --exit-code --heads origin release >/dev/null 2>&1; then
+            git fetch origin release:refs/remotes/origin/release
+            git worktree add --force /tmp/release-worktree origin/release
+            cd /tmp/release-worktree
+            git switch -C release
+          else
+            git worktree add --detach /tmp/release-worktree
+            cd /tmp/release-worktree
+            git switch --orphan release
+            find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          fi
+
+          rsync -a --delete /tmp/mikrotik-rsc-release/ /tmp/release-worktree/
+
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to publish"
+            exit 0
+          fi
+
+          git commit -m "build: mikrotik rsc ${GITHUB_SHA::7}"
+          git push origin release --force
