@@ -9,6 +9,7 @@ on:
       - '.github/workflows/build-mikrotik-rsc.yml'
       - 'scripts/build_rsc.py'
       - 'config/lists.json'
+      - 'README.md'
 
 permissions:
   contents: write
@@ -33,7 +34,7 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Build MikroTik RSC
+      - name: Build MikroTik RSC and DNS adlist
         shell: bash
         run: |
           set -euo pipefail
@@ -44,7 +45,7 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: mikrotik-rsc
+          name: mikrotik-rsc-community
           path: dist
           if-no-files-found: error
 
@@ -79,5 +80,5 @@ jobs:
             exit 0
           fi
 
-          git commit -m "build: mikrotik rsc ${GITHUB_SHA::7}"
+          git commit -m "build: community mikrotik rsc ${GITHUB_SHA::7}"
           git push origin release --force

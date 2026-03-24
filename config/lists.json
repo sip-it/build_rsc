@@ -1,22 +1,28 @@
 {
+  "repository": {
+    "owner": "sip-it",
+    "name": "build_rsc",
+    "release_branch": "release"
+  },
   "sources": {
     "geoip_base": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geoip/release/text",
     "geosite_base": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geosite/release"
   },
-  "geoip": [
-    "re-filter",
-    "cloudflare",
-    "google",
-    "ddos-guard"
-  ],
-  "geosite": [
-    "refilter",
-    "google",
-    "youtube",
-    "discord",
-    "category-ads-all",
-    "win-spy",
-    "win-update",
-    "win-extra"
-  ]
+  "output": {
+    "combined_rsc": "rsc/community-antifilter.rsc",
+    "routeros_script": "routeros/rf-update-community.rsc",
+    "dns_adlist": "dns/category-ads-all.txt",
+    "readme": "README.md"
+  },
+  "geoip": "ru-blocked-community",
+  "geosite": "antifilter-download-community",
+  "dns_adlist": "category-ads-all",
+  "self_list": {
+    "enabled": true,
+    "branch": "self-list",
+    "path": "self-list.txt",
+    "optional": true,
+    "geoip_list_name": "geoip-self-list",
+    "geosite_list_name": "geosite-self-list"
+  }
 }

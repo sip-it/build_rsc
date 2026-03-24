@@ -1,11 +1,15 @@
-GitHub Actions pipeline для генерации MikroTik `.rsc` файлов из:
+# build_rsc
 
-- `runetfreedom/russia-blocked-geoip` (`release/text/*.txt`)
-- `runetfreedom/russia-blocked-geosite` (`release/*.txt`)
+GitHub Actions pipeline для генерации и публикации в ветку `release`:
 
-Что делает pipeline:
+- `rsc/community-antifilter.rsc`
+- `dns/category-ads-all.txt`
+- `routeros/rf-update-community.example.rsc`
+- `README.md` с готовыми ссылками на артефакты
 
-1. скачивает plain text категории,
-2. собирает `dist/rsc/geoip/*.rsc` и `dist/rsc/geosite/*.rsc`,
-3. публикует результат в ветку `release`,
-4. кладёт `dist/routeros/rf-update-all.example.rsc` и `dist/manifest.json`.
+Дополнительно поддерживается кастомный источник `self-list.txt` из ветки `self-list`.
+Во время сборки его содержимое автоматически добавляется в `rsc/community-antifilter.rsc`:
+- домены -> `geosite-self-list`
+- IP/CIDR -> `geoip-self-list`
+
+Если `self-list.txt` ещё не создан, сборка не упадёт: источник отмечен как optional.
