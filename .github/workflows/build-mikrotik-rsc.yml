@@ -57,6 +57,7 @@ jobs:
           touch /tmp/mikrotik-rsc-release/.nojekyll
 
       - name: Publish to release branch
+        shell: bash
         run: |
           set -euo pipefail
 
@@ -78,7 +79,7 @@ jobs:
             find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
           fi
 
-          rsync -a --delete /tmp/mikrotik-rsc-release/ /tmp/release-worktree/
+          rsync -a --delete --exclude='.git' /tmp/mikrotik-rsc-release/ /tmp/release-worktree/
 
           git add -A
           if git diff --cached --quiet; then
