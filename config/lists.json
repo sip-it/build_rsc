@@ -46,5 +46,8 @@
       "ddos-guard",
       "yandex"
     ]
+  },
+  "domain_variants": {
+    "add_www_in_combined_rsc": true
   }
 }

@@ -141,6 +141,18 @@ def sanitize_comment_source(kind: str, category: str) -> str:
     return f"src=github:{kind}:{category}"
 
 
+def expand_domain_entries(entries: list[str], add_www: bool) -> list[str]:
+    if not add_www:
+        return entries
+
+    expanded: OrderedDict[str, None] = OrderedDict()
+    for entry in entries:
+        expanded.setdefault(entry, None)
+        if not entry.startswith("www."):
+            expanded.setdefault(f"www.{entry}", None)
+    return list(expanded.keys())
+
+
 def write_raw_copy(raw_dir: pathlib.Path, filename: str, content: str) -> None:
     (raw_dir / filename).write_text(content, encoding="utf-8", newline="\n")
 
@@ -201,6 +213,7 @@ def render_readme(
     self_list_source_url: str | None,
     self_list_optional: bool,
     bundle_list_name: str,
+    add_www_in_combined_rsc: bool,
 ) -> str:
     used_lines = "\n".join(f"- `{item}`" for item in used_categories)
     optional_lines = "\n".join(f"- `geoip:{item}`" for item in optional_geoip_categories)
@@ -235,6 +248,7 @@ def render_readme(
 ## Что входит в combined RSC
 
 - общий list name: `{bundle_list_name}`
+- автоматическое добавление `www.` для доменных записей в combined RSC: `{str(add_www_in_combined_rsc).lower()}`
 {used_lines}
 {self_list_block}{optional_block}
 ## MikroTik CHR
@@ -286,6 +300,9 @@ def main() -> int:
     bundle_geoip_categories = list(bundle_cfg.get("geoip_categories", ["ru-blocked-community"]))
     bundle_geosite_categories = list(bundle_cfg.get("geosite_categories", ["antifilter-download-community", "category-ads-all"]))
 
+    domain_variants_cfg = config.get("domain_variants", {})
+    add_www_in_combined_rsc = bool(domain_variants_cfg.get("add_www_in_combined_rsc", True))
+
     dns_adlist_name = config.get("dns_adlist", "category-ads-all")
 
     self_list_enabled = bool(self_list_cfg.get("enabled", False))
@@ -326,6 +343,9 @@ def main() -> int:
             "list_name": bundle_list_name,
             "geoip_categories": bundle_geoip_categories,
             "geosite_categories": bundle_geosite_categories,
+        },
+        "domain_variants": {
+            "add_www_in_combined_rsc": add_www_in_combined_rsc
         },
         "optional_geoip_categories": {
             "enabled": optional_geoip_enabled,
@@ -438,18 +458,22 @@ def main() -> int:
             if category == dns_adlist_name:
                 dns_entries.setdefault(normalized, None)
 
+        combined_domain_entries = expand_domain_entries(list(entries.keys()), add_www_in_combined_rsc)
+
         comment = sanitize_comment_source("geosite", category)
         block = [f"# geosite:{category}", build_remove_line(bundle_list_name, comment)]
-        block.extend(build_add_lines(bundle_list_name, list(entries.keys()), comment, is_domain=True))
+        block.extend(build_add_lines(bundle_list_name, combined_domain_entries, comment, is_domain=True))
         block.append("")
         geosite_blocks.append(block)
         used_categories.append(f"geosite:{category}")
         manifest["stats"]["geosite"][category] = {
             "list_name": bundle_list_name,
-            "entries": len(entries),
+            "source_entries": len(entries),
+            "combined_entries": len(combined_domain_entries),
             "skipped": skipped,
             "source_url": url,
             "comment": comment,
+            "add_www_in_combined_rsc": add_www_in_combined_rsc,
         }
 
     if self_list_enabled and self_list_url:
@@ -488,12 +512,13 @@ def main() -> int:
                         "",
                     ]
                 )
+            combined_self_geosite_entries = expand_domain_entries(list(geosite_entries.keys()), add_www_in_combined_rsc)
             if geosite_entries:
                 geosite_blocks.append(
                     [
                         "# self-list geosite",
                         build_remove_line(bundle_list_name, comment),
-                        *build_add_lines(bundle_list_name, list(geosite_entries.keys()), comment, is_domain=True),
+                        *build_add_lines(bundle_list_name, combined_self_geosite_entries, comment, is_domain=True),
                         "",
                     ]
                 )
@@ -503,10 +528,12 @@ def main() -> int:
                 "source_url": self_list_url,
                 "list_name": bundle_list_name,
                 "geoip_entries": len(geoip_entries),
-                "geosite_entries": len(geosite_entries),
+                "geosite_source_entries": len(geosite_entries),
+                "geosite_combined_entries": len(combined_self_geosite_entries),
                 "invalid_or_skipped": invalid,
                 "geosite_skipped": skipped,
                 "comment": comment,
+                "add_www_in_combined_rsc": add_www_in_combined_rsc,
             }
 
     if dns_adlist_name not in bundle_geosite_categories:
@@ -557,6 +584,7 @@ def main() -> int:
             self_list_source_url=self_list_url,
             self_list_optional=self_list_optional,
             bundle_list_name=bundle_list_name,
+            add_www_in_combined_rsc=add_www_in_combined_rsc,
         ),
         encoding="utf-8",
         newline="\n",
