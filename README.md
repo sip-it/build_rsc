@@ -1,6 +1,6 @@
 # release artifacts
 
-Сгенерировано: `2026-03-25T07:49:52.710046+00:00`
+Сгенерировано: `2026-03-25T08:49:17.302772+00:00`
 Ветка публикации: `release`
 
 ## Готовые ссылки
@@ -9,21 +9,33 @@
 - DNS adlist (`category-ads-all`): `https://raw.githubusercontent.com/sip-it/build_rsc/release/dns/category-ads-all.txt`
 - RouterOS update script: `https://raw.githubusercontent.com/sip-it/build_rsc/release/routeros/rf-update-community.rsc`
 
-## Что внутри combined RSC
+## Что входит в combined RSC
 
-- `geoip:ru-blocked-community` — `community.lst` сервиса `community.antifilter.download`
-- `geosite:antifilter-download-community` — все домены из `community.antifilter.download`
+- общий list name: `antifilter-community`
+- `geoip:ru-blocked-community`
+- `geosite:antifilter-download-community`
+- `self-list`
 
-- `self-list.txt` из ветки `self-list` будет автоматически добавлен в `rsc/community-antifilter.rsc`
-- источник self-list: `https://raw.githubusercontent.com/sip-it/build_rsc/self-list/self-list.txt`
-- поддерживаются домены, IPv4/IPv6 и CIDR; домены попадут в `geosite-self-list`, IP/CIDR — в `geoip-self-list`
+## self-list
+
+- источник: `https://raw.githubusercontent.com/sip-it/build_rsc/self-list/self-list.txt`
 - optional: `true`
+- строки с доменами и IP/CIDR добавляются в общий list `antifilter-community`
 
-## Upstream источники
+## Дополнительные geoip-категории (поддерживаются конфигом)
 
-- geoip source: `https://raw.githubusercontent.com/runetfreedom/russia-blocked-geoip/release/text/ru-blocked-community.txt`
-- geosite source: `https://raw.githubusercontent.com/runetfreedom/russia-blocked-geosite/release/antifilter-download-community.txt`
-- dns adlist source: `https://raw.githubusercontent.com/runetfreedom/russia-blocked-geosite/release/category-ads-all.txt`
+Сейчас они не включены в итоговый `.rsc`, но их можно включить в `config/lists.json`.
+
+- `geoip:cloudflare`
+- `geoip:cloudfront`
+- `geoip:facebook`
+- `geoip:fastly`
+- `geoip:google`
+- `geoip:netflix`
+- `geoip:telegram`
+- `geoip:twitter`
+- `geoip:ddos-guard`
+- `geoip:yandex`
 
 ## MikroTik CHR
 

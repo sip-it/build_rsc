@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-25T07:49:52.710046+00:00",
+  "generated_at": "2026-03-25T08:49:17.302772+00:00",
   "repository": {
     "owner": "sip-it",
     "name": "build_rsc",
@@ -9,63 +9,76 @@
     "geoip_base": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geoip/release/text",
     "geosite_base": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geosite/release"
   },
-  "combined_rsc": "rsc/community-antifilter.rsc",
-  "routeros_script": "routeros/rf-update-community.rsc",
-  "dns_adlist": "dns/category-ads-all.txt",
-  "readme": "README.md",
-  "categories": {
-    "geoip": "ru-blocked-community",
-    "geosite": "antifilter-download-community",
-    "dns_adlist": "category-ads-all"
+  "bundle": {
+    "list_name": "antifilter-community",
+    "geoip_categories": [
+      "ru-blocked-community"
+    ],
+    "geosite_categories": [
+      "antifilter-download-community"
+    ]
+  },
+  "optional_geoip_categories": {
+    "enabled": false,
+    "optional": true,
+    "categories": [
+      "cloudflare",
+      "cloudfront",
+      "facebook",
+      "fastly",
+      "google",
+      "netflix",
+      "telegram",
+      "twitter",
+      "ddos-guard",
+      "yandex"
+    ]
   },
   "self_list": {
     "enabled": true,
     "url": "https://raw.githubusercontent.com/sip-it/build_rsc/self-list/self-list.txt",
     "optional": true,
-    "geoip_list_name": "geoip-self-list",
-    "geosite_list_name": "geosite-self-list"
+    "comment_label": "self-list"
   },
   "files": [
     {
       "kind": "combined",
       "relative_path": "rsc/community-antifilter.rsc",
-      "description": "Combined MikroTik RSC with community antifilter lists and optional self-list.txt",
       "raw_url": "https://raw.githubusercontent.com/sip-it/build_rsc/release/rsc/community-antifilter.rsc"
     },
     {
       "kind": "dns_adlist",
       "relative_path": "dns/category-ads-all.txt",
-      "description": "Plain text DNS adlist generated from geosite:category-ads-all",
       "raw_url": "https://raw.githubusercontent.com/sip-it/build_rsc/release/dns/category-ads-all.txt"
     },
     {
       "kind": "routeros_script",
       "relative_path": "routeros/rf-update-community.rsc",
-      "description": "RouterOS example update script",
       "raw_url": "https://raw.githubusercontent.com/sip-it/build_rsc/release/routeros/rf-update-community.rsc"
     },
     {
       "kind": "readme",
       "relative_path": "README.md",
-      "description": "Generated README with artifact links",
       "raw_url": "https://raw.githubusercontent.com/sip-it/build_rsc/release/README.md"
     }
   ],
   "stats": {
     "geoip": {
       "ru-blocked-community": {
-        "list_name": "geoip-ru-blocked-community",
+        "list_name": "antifilter-community",
         "entries": 877,
         "invalid_or_skipped": 0,
-        "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geoip/release/text/ru-blocked-community.txt"
+        "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geoip/release/text/ru-blocked-community.txt",
+        "comment": "src=github:geoip:ru-blocked-community"
       }
     },
     "geosite": {
       "antifilter-download-community": {
-        "list_name": "geosite-antifilter-download-community",
+        "list_name": "antifilter-community",
         "entries": 480,
         "skipped": {},
-        "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geosite/release/antifilter-download-community.txt"
+        "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geosite/release/antifilter-download-community.txt",
+        "comment": "src=github:geosite:antifilter-download-community"
       }
     },
     "dns_adlist": {
@@ -78,14 +91,14 @@
       }
     },
     "self_list": {
-      "source_url": "https://raw.githubusercontent.com/sip-it/build_rsc/self-list/self-list.txt",
       "status": "loaded",
-      "geoip_list_name": "geoip-self-list",
-      "geosite_list_name": "geosite-self-list",
+      "source_url": "https://raw.githubusercontent.com/sip-it/build_rsc/self-list/self-list.txt",
+      "list_name": "antifilter-community",
       "geoip_entries": 0,
       "geosite_entries": 1,
       "invalid_or_skipped": 0,
-      "geosite_skipped": {}
+      "geosite_skipped": {},
+      "comment": "src=github:self-list"
     }
   }
 }
