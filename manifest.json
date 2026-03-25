@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-25T10:26:19.702103+00:00",
+  "generated_at": "2026-03-25T10:29:09.926322+00:00",
   "repository": {
     "owner": "sip-it",
     "name": "build_rsc",
@@ -106,14 +106,16 @@
       "status": "loaded",
       "source_url": "https://raw.githubusercontent.com/sip-it/build_rsc/self-list/self-list.txt",
       "list_name": "antifilter-community",
-      "geoip_source_entries": 0,
-      "geoip_combined_entries": 0,
+      "geoip_source_entries": 6,
+      "geoip_combined_entries": 6,
       "geoip_duplicates_skipped": 0,
-      "geosite_source_entries": 2,
-      "geosite_combined_entries": 2,
-      "geosite_duplicates_skipped": 0,
-      "invalid_or_skipped": 0,
-      "geosite_skipped": {},
+      "geosite_source_entries": 305,
+      "geosite_combined_entries": 488,
+      "geosite_duplicates_skipped": 88,
+      "invalid_or_skipped": 1,
+      "geosite_skipped": {
+        "invalid_domain": 1
+      },
       "comment": "src=github:self-list",
       "add_www_in_combined_rsc": true
     }
