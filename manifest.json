@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-25T07:31:36.126226+00:00",
+  "generated_at": "2026-03-25T07:49:52.710046+00:00",
   "repository": {
     "owner": "sip-it",
     "name": "build_rsc",
@@ -83,7 +83,7 @@
       "geoip_list_name": "geoip-self-list",
       "geosite_list_name": "geosite-self-list",
       "geoip_entries": 0,
-      "geosite_entries": 0,
+      "geosite_entries": 1,
       "invalid_or_skipped": 0,
       "geosite_skipped": {}
     }

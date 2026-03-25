@@ -1,5 +1,5 @@
 # Combined MikroTik RSC generated from runetfreedom lists
-# Generated at 2026-03-25T07:31:36.126226+00:00
+# Generated at 2026-03-25T07:49:52.710046+00:00
 
 # geoip:ru-blocked-community
 /ip firewall address-list remove [find where list="geoip-ru-blocked-community" comment="src=github:geoip-ru-blocked-community"]
@@ -1365,3 +1365,8 @@ add list="geosite-antifilter-download-community" address="zimbra.org" comment="s
 add list="geosite-antifilter-download-community" address="znanija.com" comment="src=github:geosite-antifilter-download-community"
 add list="geosite-antifilter-download-community" address="zohomail.com" comment="src=github:geosite-antifilter-download-community"
 add list="geosite-antifilter-download-community" address="zona.media" comment="src=github:geosite-antifilter-download-community"
+
+# self-list geosite
+/ip firewall address-list remove [find where list="geosite-self-list" comment="src=github:self-list"]
+/ip firewall address-list
+add list="geosite-self-list" address="speedtest.net" comment="src=github:self-list"
