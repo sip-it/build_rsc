@@ -38,9 +38,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python scripts/build_rsc.py \
-            --config config/lists.json \
-            --output dist
+          python scripts/build_rsc.py             --config config/lists.json             --output dist
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4

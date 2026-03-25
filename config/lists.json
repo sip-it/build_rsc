@@ -14,15 +14,37 @@
     "dns_adlist": "dns/category-ads-all.txt",
     "readme": "README.md"
   },
-  "geoip": "ru-blocked-community",
-  "geosite": "antifilter-download-community",
+  "bundle": {
+    "list_name": "antifilter-community",
+    "geoip_categories": [
+      "ru-blocked-community"
+    ],
+    "geosite_categories": [
+      "antifilter-download-community"
+    ]
+  },
   "dns_adlist": "category-ads-all",
   "self_list": {
     "enabled": true,
     "branch": "self-list",
     "path": "self-list.txt",
     "optional": true,
-    "geoip_list_name": "geoip-self-list",
-    "geosite_list_name": "geosite-self-list"
+    "comment_label": "self-list"
+  },
+  "optional_geoip_categories": {
+    "enabled": false,
+    "optional": true,
+    "categories": [
+      "cloudflare",
+      "cloudfront",
+      "facebook",
+      "fastly",
+      "google",
+      "netflix",
+      "telegram",
+      "twitter",
+      "ddos-guard",
+      "yandex"
+    ]
   }
 }
