@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-25T09:40:15.686753+00:00",
+  "generated_at": "2026-03-25T09:55:50.101306+00:00",
   "repository": {
     "owner": "sip-it",
     "name": "build_rsc",
@@ -20,6 +20,10 @@
   },
   "domain_variants": {
     "add_www_in_combined_rsc": true
+  },
+  "deduplication": {
+    "enabled": true,
+    "priority": "community"
   },
   "optional_geoip_categories": {
     "enabled": false,
@@ -69,7 +73,9 @@
     "geoip": {
       "ru-blocked-community": {
         "list_name": "antifilter-community",
-        "entries": 877,
+        "source_entries": 877,
+        "combined_entries": 877,
+        "duplicates_skipped": 0,
         "invalid_or_skipped": 0,
         "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geoip/release/text/ru-blocked-community.txt",
         "comment": "src=github:geoip:ru-blocked-community"
@@ -80,6 +86,7 @@
         "list_name": "antifilter-community",
         "source_entries": 480,
         "combined_entries": 915,
+        "duplicates_skipped": 0,
         "skipped": {},
         "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geosite/release/antifilter-download-community.txt",
         "comment": "src=github:geosite:antifilter-download-community",
@@ -88,7 +95,7 @@
     },
     "dns_adlist": {
       "category-ads-all": {
-        "entries": 156111,
+        "entries": 156158,
         "skipped": {
           "invalid_domain": 5
         },
@@ -99,9 +106,12 @@
       "status": "loaded",
       "source_url": "https://raw.githubusercontent.com/sip-it/build_rsc/self-list/self-list.txt",
       "list_name": "antifilter-community",
-      "geoip_entries": 0,
+      "geoip_source_entries": 0,
+      "geoip_combined_entries": 0,
+      "geoip_duplicates_skipped": 0,
       "geosite_source_entries": 2,
       "geosite_combined_entries": 2,
+      "geosite_duplicates_skipped": 0,
       "invalid_or_skipped": 0,
       "geosite_skipped": {},
       "comment": "src=github:self-list",

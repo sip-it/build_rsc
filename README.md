@@ -1,6 +1,6 @@
 # release artifacts
 
-Сгенерировано: `2026-03-25T09:40:15.686753+00:00`
+Сгенерировано: `2026-03-25T09:55:50.101306+00:00`
 Ветка публикации: `release`
 
 ## Готовые ссылки
@@ -13,6 +13,8 @@
 
 - общий list name: `antifilter-community`
 - автоматическое добавление `www.` для доменных записей в combined RSC: `true`
+- дедупликация между списками: `true`
+- приоритет при совпадениях: `community`
 - `geoip:ru-blocked-community`
 - `geosite:antifilter-download-community`
 - `self-list`

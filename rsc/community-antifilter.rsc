@@ -1,6 +1,8 @@
 # Combined MikroTik RSC generated from configured sources
-# Generated at 2026-03-25T09:40:15.686753+00:00
+# Generated at 2026-03-25T09:55:50.101306+00:00
 # List name: antifilter-community
+# Deduplication enabled: true
+# Deduplication priority: community
 # Included categories:
 # - geoip:ru-blocked-community
 # - geosite:antifilter-download-community
