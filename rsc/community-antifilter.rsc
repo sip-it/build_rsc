@@ -1,5 +1,5 @@
 # Combined MikroTik RSC generated from configured sources
-# Generated at 2026-03-25T08:49:17.302772+00:00
+# Generated at 2026-03-25T09:22:04.163758+00:00
 # List name: antifilter-community
 # Included categories:
 # - geoip:ru-blocked-community
@@ -1375,3 +1375,4 @@ add list="antifilter-community" address="zona.media" comment="src=github:geosite
 /ip firewall address-list remove [find where list="antifilter-community" comment="src=github:self-list"]
 /ip firewall address-list
 add list="antifilter-community" address="speedtest.net" comment="src=github:self-list"
+add list="antifilter-community" address="www.speedtest.net" comment="src=github:self-list"

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-25T08:49:17.302772+00:00",
+  "generated_at": "2026-03-25T09:22:04.163758+00:00",
   "repository": {
     "owner": "sip-it",
     "name": "build_rsc",
@@ -95,7 +95,7 @@
       "source_url": "https://raw.githubusercontent.com/sip-it/build_rsc/self-list/self-list.txt",
       "list_name": "antifilter-community",
       "geoip_entries": 0,
-      "geosite_entries": 1,
+      "geosite_entries": 2,
       "invalid_or_skipped": 0,
       "geosite_skipped": {},
       "comment": "src=github:self-list"
