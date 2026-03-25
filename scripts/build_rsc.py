@@ -142,15 +142,24 @@ def sanitize_comment_source(kind: str, category: str) -> str:
 
 
 def expand_domain_entries(entries: list[str], add_www: bool) -> list[str]:
-    if not add_www:
-        return entries
-
     expanded: OrderedDict[str, None] = OrderedDict()
     for entry in entries:
         expanded.setdefault(entry, None)
-        if not entry.startswith("www."):
+        if add_www and not entry.startswith("www."):
             expanded.setdefault(f"www.{entry}", None)
     return list(expanded.keys())
+
+
+def filter_unique_entries(entries: list[str], seen: set[str]) -> tuple[list[str], int]:
+    unique: list[str] = []
+    duplicates = 0
+    for entry in entries:
+        if entry in seen:
+            duplicates += 1
+            continue
+        seen.add(entry)
+        unique.append(entry)
+    return unique, duplicates
 
 
 def write_raw_copy(raw_dir: pathlib.Path, filename: str, content: str) -> None:
@@ -214,6 +223,8 @@ def render_readme(
     self_list_optional: bool,
     bundle_list_name: str,
     add_www_in_combined_rsc: bool,
+    dedup_enabled: bool,
+    dedup_priority: str,
 ) -> str:
     used_lines = "\n".join(f"- `{item}`" for item in used_categories)
     optional_lines = "\n".join(f"- `geoip:{item}`" for item in optional_geoip_categories)
@@ -249,6 +260,8 @@ def render_readme(
 
 - общий list name: `{bundle_list_name}`
 - автоматическое добавление `www.` для доменных записей в combined RSC: `{str(add_www_in_combined_rsc).lower()}`
+- дедупликация между списками: `{str(dedup_enabled).lower()}`
+- приоритет при совпадениях: `{dedup_priority}`
 {used_lines}
 {self_list_block}{optional_block}
 ## MikroTik CHR
@@ -282,6 +295,8 @@ def main() -> int:
     bundle_cfg = config.get("bundle", {})
     self_list_cfg = config.get("self_list", {})
     extra_geoip_cfg = config.get("optional_geoip_categories", {})
+    domain_variants_cfg = config.get("domain_variants", {})
+    dedup_cfg = config.get("deduplication", {})
 
     owner = repo["owner"]
     name = repo["name"]
@@ -298,10 +313,11 @@ def main() -> int:
 
     bundle_list_name = bundle_cfg.get("list_name", "antifilter-community")
     bundle_geoip_categories = list(bundle_cfg.get("geoip_categories", ["ru-blocked-community"]))
-    bundle_geosite_categories = list(bundle_cfg.get("geosite_categories", ["antifilter-download-community", "category-ads-all"]))
+    bundle_geosite_categories = list(bundle_cfg.get("geosite_categories", ["antifilter-download-community"]))
 
-    domain_variants_cfg = config.get("domain_variants", {})
     add_www_in_combined_rsc = bool(domain_variants_cfg.get("add_www_in_combined_rsc", True))
+    dedup_enabled = bool(dedup_cfg.get("enabled", True))
+    dedup_priority = dedup_cfg.get("priority", "community")
 
     dns_adlist_name = config.get("dns_adlist", "category-ads-all")
 
@@ -334,6 +350,8 @@ def main() -> int:
     used_categories: list[str] = []
     combined_lines: list[str] = []
     dns_entries: OrderedDict[str, None] = OrderedDict()
+    seen_geoip: set[str] = set()
+    seen_domains: set[str] = set()
 
     manifest: dict[str, Any] = {
         "generated_at": generated_at,
@@ -345,7 +363,11 @@ def main() -> int:
             "geosite_categories": bundle_geosite_categories,
         },
         "domain_variants": {
-            "add_www_in_combined_rsc": add_www_in_combined_rsc
+            "add_www_in_combined_rsc": add_www_in_combined_rsc,
+        },
+        "deduplication": {
+            "enabled": dedup_enabled,
+            "priority": dedup_priority,
         },
         "optional_geoip_categories": {
             "enabled": optional_geoip_enabled,
@@ -389,6 +411,8 @@ def main() -> int:
                 "# Combined MikroTik RSC generated from configured sources",
                 f"# Generated at {generated_at}",
                 f"# List name: {bundle_list_name}",
+                f"# Deduplication enabled: {str(dedup_enabled).lower()}",
+                f"# Deduplication priority: {dedup_priority}",
                 "# Included categories:",
             ]
         )
@@ -423,15 +447,22 @@ def main() -> int:
                 continue
             entries.setdefault(normalized, None)
 
+        final_entries = list(entries.keys())
+        duplicates_skipped = 0
+        if dedup_enabled:
+            final_entries, duplicates_skipped = filter_unique_entries(final_entries, seen_geoip)
+
         comment = sanitize_comment_source("geoip", category)
         block = [f"# geoip:{category}", build_remove_line(bundle_list_name, comment)]
-        block.extend(build_add_lines(bundle_list_name, list(entries.keys()), comment, is_domain=False))
+        block.extend(build_add_lines(bundle_list_name, final_entries, comment, is_domain=False))
         block.append("")
         geoip_blocks.append(block)
         used_categories.append(f"geoip:{category}")
         manifest["stats"]["geoip"][category] = {
             "list_name": bundle_list_name,
-            "entries": len(entries),
+            "source_entries": len(entries),
+            "combined_entries": len(final_entries),
+            "duplicates_skipped": duplicates_skipped,
             "invalid_or_skipped": invalid,
             "source_url": url,
             "comment": comment,
@@ -455,21 +486,24 @@ def main() -> int:
                     skipped[reason] = skipped.get(reason, 0) + 1
                 continue
             entries.setdefault(normalized, None)
-            if category == dns_adlist_name:
-                dns_entries.setdefault(normalized, None)
 
         combined_domain_entries = expand_domain_entries(list(entries.keys()), add_www_in_combined_rsc)
+        duplicates_skipped = 0
+        final_entries = combined_domain_entries
+        if dedup_enabled:
+            final_entries, duplicates_skipped = filter_unique_entries(combined_domain_entries, seen_domains)
 
         comment = sanitize_comment_source("geosite", category)
         block = [f"# geosite:{category}", build_remove_line(bundle_list_name, comment)]
-        block.extend(build_add_lines(bundle_list_name, combined_domain_entries, comment, is_domain=True))
+        block.extend(build_add_lines(bundle_list_name, final_entries, comment, is_domain=True))
         block.append("")
         geosite_blocks.append(block)
         used_categories.append(f"geosite:{category}")
         manifest["stats"]["geosite"][category] = {
             "list_name": bundle_list_name,
             "source_entries": len(entries),
-            "combined_entries": len(combined_domain_entries),
+            "combined_entries": len(final_entries),
+            "duplicates_skipped": duplicates_skipped,
             "skipped": skipped,
             "source_url": url,
             "comment": comment,
@@ -503,67 +537,72 @@ def main() -> int:
                         skipped[reason] = skipped.get(reason, 0) + 1
 
             comment = f"src=github:{self_list_comment}"
-            if geoip_entries:
+            self_geoip_final = list(geoip_entries.keys())
+            self_geoip_duplicates = 0
+            if dedup_enabled:
+                self_geoip_final, self_geoip_duplicates = filter_unique_entries(self_geoip_final, seen_geoip)
+            if self_geoip_final:
                 geoip_blocks.append(
                     [
                         "# self-list geoip",
                         build_remove_line(bundle_list_name, comment),
-                        *build_add_lines(bundle_list_name, list(geoip_entries.keys()), comment, is_domain=False),
+                        *build_add_lines(bundle_list_name, self_geoip_final, comment, is_domain=False),
                         "",
                     ]
                 )
+
             combined_self_geosite_entries = expand_domain_entries(list(geosite_entries.keys()), add_www_in_combined_rsc)
-            if geosite_entries:
+            self_geosite_final = combined_self_geosite_entries
+            self_geosite_duplicates = 0
+            if dedup_enabled:
+                self_geosite_final, self_geosite_duplicates = filter_unique_entries(combined_self_geosite_entries, seen_domains)
+            if self_geosite_final:
                 geosite_blocks.append(
                     [
                         "# self-list geosite",
                         build_remove_line(bundle_list_name, comment),
-                        *build_add_lines(bundle_list_name, combined_self_geosite_entries, comment, is_domain=True),
+                        *build_add_lines(bundle_list_name, self_geosite_final, comment, is_domain=True),
                         "",
                     ]
                 )
+
             used_categories.append(self_list_comment)
             manifest["stats"]["self_list"] = {
                 "status": "loaded",
                 "source_url": self_list_url,
                 "list_name": bundle_list_name,
-                "geoip_entries": len(geoip_entries),
+                "geoip_source_entries": len(geoip_entries),
+                "geoip_combined_entries": len(self_geoip_final),
+                "geoip_duplicates_skipped": self_geoip_duplicates,
                 "geosite_source_entries": len(geosite_entries),
-                "geosite_combined_entries": len(combined_self_geosite_entries),
+                "geosite_combined_entries": len(self_geosite_final),
+                "geosite_duplicates_skipped": self_geosite_duplicates,
                 "invalid_or_skipped": invalid,
                 "geosite_skipped": skipped,
                 "comment": comment,
                 "add_www_in_combined_rsc": add_www_in_combined_rsc,
             }
 
-    if dns_adlist_name not in bundle_geosite_categories:
-        print(f"build dns_adlist:{dns_adlist_name}")
-        url = f"{geosite_base}/{dns_adlist_name}.txt"
-        try:
-            content = fetch_text(url)
-        except urllib.error.URLError as exc:
-            raise SystemExit(f"failed to download {url}: {exc}") from exc
-        write_raw_copy(raw_dir, f"geosite-{dns_adlist_name}.txt", content)
-        skipped: dict[str, int] = {}
-        for line in content.splitlines():
-            normalized, reason = normalize_geosite_line(line)
-            if normalized is None:
-                if reason:
-                    skipped[reason] = skipped.get(reason, 0) + 1
-                continue
-            dns_entries.setdefault(normalized, None)
-        manifest["stats"]["dns_adlist"][dns_adlist_name] = {
-            "entries": len(dns_entries),
-            "skipped": skipped,
-            "source_url": url,
-        }
-    else:
-        source_url = f"{geosite_base}/{dns_adlist_name}.txt"
-        manifest["stats"]["dns_adlist"][dns_adlist_name] = {
-            "entries": len(dns_entries),
-            "skipped": manifest["stats"]["geosite"][dns_adlist_name]["skipped"],
-            "source_url": source_url,
-        }
+    print(f"build dns_adlist:{dns_adlist_name}")
+    url = f"{geosite_base}/{dns_adlist_name}.txt"
+    try:
+        content = fetch_text(url)
+    except urllib.error.URLError as exc:
+        raise SystemExit(f"failed to download {url}: {exc}") from exc
+    write_raw_copy(raw_dir, f"geosite-{dns_adlist_name}.txt", content)
+    skipped: dict[str, int] = {}
+    for line in content.splitlines():
+        normalized, reason = normalize_geosite_line(line)
+        if normalized is None:
+            if reason:
+                skipped[reason] = skipped.get(reason, 0) + 1
+            continue
+        dns_entries.setdefault(normalized, None)
+    manifest["stats"]["dns_adlist"][dns_adlist_name] = {
+        "entries": len(dns_entries),
+        "skipped": skipped,
+        "source_url": url,
+    }
 
     append_header()
     for block in geoip_blocks + geosite_blocks:
@@ -585,6 +624,8 @@ def main() -> int:
             self_list_optional=self_list_optional,
             bundle_list_name=bundle_list_name,
             add_www_in_combined_rsc=add_www_in_combined_rsc,
+            dedup_enabled=dedup_enabled,
+            dedup_priority=dedup_priority,
         ),
         encoding="utf-8",
         newline="\n",

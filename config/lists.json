@@ -49,5 +49,9 @@
   },
   "domain_variants": {
     "add_www_in_combined_rsc": true
+  },
+  "deduplication": {
+    "enabled": true,
+    "priority": "community"
   }
 }
