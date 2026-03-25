@@ -23,32 +23,21 @@
       "antifilter-download-community"
     ]
   },
-  "dns_adlist": "category-ads-all",
+  "dns_adlist": {
+    "category": "category-ads-all"
+  },
   "self_list": {
     "enabled": true,
     "branch": "self-list",
     "path": "self-list.txt",
-    "optional": true,
-    "comment_label": "self-list"
-  },
-  "optional_geoip_categories": {
-    "enabled": false,
-    "optional": true,
-    "categories": [
-      "cloudflare",
-      "cloudfront",
-      "facebook",
-      "fastly",
-      "google",
-      "netflix",
-      "telegram",
-      "twitter",
-      "ddos-guard",
-      "yandex"
-    ]
+    "optional": true
   },
   "domain_variants": {
-    "add_www_in_combined_rsc": true
+    "add_www_in_combined_rsc": true,
+    "skip_www_for_prefixes": [
+      "api",
+      "cdn"
+    ]
   },
   "deduplication": {
     "enabled": true,

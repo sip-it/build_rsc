@@ -34,7 +34,7 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Build MikroTik RSC and DNS adlist
+      - name: Build MikroTik RSC
         shell: bash
         run: |
           set -euo pipefail
@@ -45,7 +45,7 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: mikrotik-rsc-community
+          name: mikrotik-rsc
           path: dist
           if-no-files-found: error
 
@@ -80,5 +80,5 @@ jobs:
             exit 0
           fi
 
-          git commit -m "build: community mikrotik rsc ${GITHUB_SHA::7}"
+          git commit -m "build: mikrotik rsc ${GITHUB_SHA::7}"
           git push origin release --force

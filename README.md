@@ -1,39 +1,79 @@
 # build_rsc
 
-GitHub Actions pipeline для генерации и публикации в ветку `release`:
+Сборка артефактов для MikroTik/RouterOS и DNS adlist из runetfreedom.
+
+Что генерируется в ветку `release`:
 
 - `rsc/community-antifilter.rsc`
 - `dns/category-ads-all.txt`
 - `routeros/rf-update-community.example.rsc`
-- `README.md` с готовыми ссылками на артефакты
+- `README.md`
+- `manifest.json`
 
-Что сейчас попадает в `rsc/community-antifilter.rsc`:
+## Что входит в `community-antifilter.rsc`
+
+Общий MikroTik address-list с именем:
+
+```text
+antifilter-community
+```
+
+Источники:
+
 - `geoip:ru-blocked-community`
 - `geosite:antifilter-download-community`
-- `self-list.txt` из ветки `self-list` при наличии
+- `self-list.txt` из ветки `self-list`, если файл существует
 
-Все записи добавляются в один общий MikroTik address-list:
-- `antifilter-community`
+`geosite:category-ads-all` в общий `.rsc` не включается.
 
-Для доменных записей в итоговом `community-antifilter.rsc` автоматически добавляется вариант с `www.`.
-Пример:
-- `speedtest.net`
-- `www.speedtest.net`
+## Что входит в DNS adlist
 
-Добавлена дедупликация между списками, чтобы избежать повторов в общем файле.
-Приоритет при совпадениях:
-- community-источники (`geoip:ru-blocked-community`, `geosite:antifilter-download-community`)
-- затем `self-list.txt`
+Отдельный файл:
 
-То есть если запись уже есть в community-источниках, дубликат из `self-list.txt` в общий `.rsc` повторно не попадёт.
+```text
+dns/category-ads-all.txt
+```
 
-Комментарии у записей формируются динамически по источнику, например:
-- `src=github:geoip:ru-blocked-community`
-- `src=github:geosite:antifilter-download-community`
-- `src=github:self-list`
+Источник:
 
-Отдельно генерируется DNS adlist:
-- `dns/category-ads-all.txt`
+- `geosite:category-ads-all`
 
-Дополнительно в конфиге предусмотрен список optional geoip-категорий, который можно включить позже:
-- `cloudflare`, `cloudfront`, `facebook`, `fastly`, `google`, `netflix`, `telegram`, `twitter`, `ddos-guard`, `yandex`
+## Особенности
+
+- для доменных записей в `community-antifilter.rsc` добавляется вариант с `www.`
+- `www.` не добавляется для доменов, начинающихся с `api.` или `cdn.`
+- есть дедупликация между источниками
+- приоритет у community-источников, потом `self-list`
+- для `self-list` используются разные comments:
+  - `src=github:self-list:geoip`
+  - `src=github:self-list:geosite`
+
+Это сделано, чтобы RouterOS не удалял geoip-записи `self-list` при импорте блока geosite.
+
+## Пример `self-list.txt`
+
+```text
+example.com
+speedtest.net
+api.example.com
+cdn.example.com
+1.2.3.4
+10.20.30.0/24
+```
+
+В итоговом `community-antifilter.rsc` домены будут добавлены как:
+
+```text
+example.com
+www.example.com
+speedtest.net
+www.speedtest.net
+api.example.com
+cdn.example.com
+```
+
+## Полезные файлы после сборки
+
+- `rsc/community-antifilter.rsc` — общий MikroTik RSC
+- `dns/category-ads-all.txt` — DNS adlist
+- `routeros/rf-update-community.example.rsc` — пример update-скрипта для RouterOS
