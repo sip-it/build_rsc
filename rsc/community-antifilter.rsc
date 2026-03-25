@@ -1,5 +1,5 @@
 # Combined MikroTik RSC generated from configured sources
-# Generated at 2026-03-25T10:40:00.206833+00:00
+# Generated at 2026-03-25T12:43:35.238577+00:00
 # List name: antifilter-community
 # Deduplication enabled: true
 # Deduplication priority: community
@@ -892,12 +892,6 @@ add list="antifilter-community" address=217.140.110.36/32 comment="src=github:ge
 # self-list geoip
 /ip firewall address-list remove [find where list="antifilter-community" comment="src=github:self-list"]
 /ip firewall address-list
-add list="antifilter-community" address=3.164.68.54 comment="src=github:self-list"
-add list="antifilter-community" address=3.167.2.0/24 comment="src=github:self-list"
-add list="antifilter-community" address=3.164.240.0/24 comment="src=github:self-list"
-add list="antifilter-community" address=172.174.35.0/24 comment="src=github:self-list"
-add list="antifilter-community" address=13.33.232.0/24 comment="src=github:self-list"
-add list="antifilter-community" address=45.95.201.237 comment="src=github:self-list"
 add list="antifilter-community" address=142.250.0.0/15 comment="src=github:self-list"
 add list="antifilter-community" address=172.217.0.0/16 comment="src=github:self-list"
 add list="antifilter-community" address=173.194.0.0/16 comment="src=github:self-list"
@@ -909,6 +903,12 @@ add list="antifilter-community" address=34.3.4.0/24 comment="src=github:self-lis
 add list="antifilter-community" address=34.3.8.0/21 comment="src=github:self-list"
 add list="antifilter-community" address=64.233.160.0/19 comment="src=github:self-list"
 add list="antifilter-community" address=74.125.0.0/16 comment="src=github:self-list"
+add list="antifilter-community" address=3.164.68.54 comment="src=github:self-list"
+add list="antifilter-community" address=3.167.2.0/24 comment="src=github:self-list"
+add list="antifilter-community" address=3.164.240.0/24 comment="src=github:self-list"
+add list="antifilter-community" address=172.174.35.0/24 comment="src=github:self-list"
+add list="antifilter-community" address=13.33.232.0/24 comment="src=github:self-list"
+add list="antifilter-community" address=45.95.201.237 comment="src=github:self-list"
 
 # geosite:antifilter-download-community
 /ip firewall address-list remove [find where list="antifilter-community" comment="src=github:geosite:antifilter-download-community"]
@@ -1832,8 +1832,8 @@ add list="antifilter-community" address="www.zona.media" comment="src=github:geo
 # self-list geosite
 /ip firewall address-list remove [find where list="antifilter-community" comment="src=github:self-list"]
 /ip firewall address-list
-add list="antifilter-community" address="speedtest.net" comment="src=github:self-list"
-add list="antifilter-community" address="www.speedtest.net" comment="src=github:self-list"
+add list="antifilter-community" address="1e100.net" comment="src=github:self-list"
+add list="antifilter-community" address="www.1e100.net" comment="src=github:self-list"
 add list="antifilter-community" address="aaplimg.com" comment="src=github:self-list"
 add list="antifilter-community" address="www.aaplimg.com" comment="src=github:self-list"
 add list="antifilter-community" address="accounts.youtube.com" comment="src=github:self-list"
@@ -2194,6 +2194,8 @@ add list="antifilter-community" address="cloud.google.com" comment="src=github:s
 add list="antifilter-community" address="www.cloud.google.com" comment="src=github:self-list"
 add list="antifilter-community" address="install4.zonastat.com" comment="src=github:self-list"
 add list="antifilter-community" address="www.install4.zonastat.com" comment="src=github:self-list"
+add list="antifilter-community" address="blob.core.windows.net" comment="src=github:self-list"
+add list="antifilter-community" address="www.blob.core.windows.net" comment="src=github:self-list"
 add list="antifilter-community" address="browserleaks.com" comment="src=github:self-list"
 add list="antifilter-community" address="www.browserleaks.com" comment="src=github:self-list"
 add list="antifilter-community" address="downloads.1password.com" comment="src=github:self-list"
@@ -2320,5 +2322,3 @@ add list="antifilter-community" address="tgram.org" comment="src=github:self-lis
 add list="antifilter-community" address="www.tgram.org" comment="src=github:self-list"
 add list="antifilter-community" address="torg.org" comment="src=github:self-list"
 add list="antifilter-community" address="www.torg.org" comment="src=github:self-list"
-add list="antifilter-community" address="1e100.net" comment="src=github:self-list"
-add list="antifilter-community" address="www.1e100.net" comment="src=github:self-list"
