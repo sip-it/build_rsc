@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-25T09:22:04.163758+00:00",
+  "generated_at": "2026-03-25T09:40:15.686753+00:00",
   "repository": {
     "owner": "sip-it",
     "name": "build_rsc",
@@ -17,6 +17,9 @@
     "geosite_categories": [
       "antifilter-download-community"
     ]
+  },
+  "domain_variants": {
+    "add_www_in_combined_rsc": true
   },
   "optional_geoip_categories": {
     "enabled": false,
@@ -75,10 +78,12 @@
     "geosite": {
       "antifilter-download-community": {
         "list_name": "antifilter-community",
-        "entries": 480,
+        "source_entries": 480,
+        "combined_entries": 915,
         "skipped": {},
         "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geosite/release/antifilter-download-community.txt",
-        "comment": "src=github:geosite:antifilter-download-community"
+        "comment": "src=github:geosite:antifilter-download-community",
+        "add_www_in_combined_rsc": true
       }
     },
     "dns_adlist": {
@@ -95,10 +100,12 @@
       "source_url": "https://raw.githubusercontent.com/sip-it/build_rsc/self-list/self-list.txt",
       "list_name": "antifilter-community",
       "geoip_entries": 0,
-      "geosite_entries": 2,
+      "geosite_source_entries": 2,
+      "geosite_combined_entries": 2,
       "invalid_or_skipped": 0,
       "geosite_skipped": {},
-      "comment": "src=github:self-list"
+      "comment": "src=github:self-list",
+      "add_www_in_combined_rsc": true
     }
   }
 }
