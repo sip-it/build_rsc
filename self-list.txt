@@ -25,6 +25,7 @@
 2001:b28:f23c::/48
 2a0a:f280::/32
 ############
+stel.com
 aaplimg.com
 abs.twimg.com
 accounts.youtube.com
@@ -312,6 +313,7 @@ telegram.org
 telegram.space
 telesco.pe
 tg.dev
+stel.com
 ton.org
 tx.me
 tg.org
