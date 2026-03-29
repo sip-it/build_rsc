@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-29T07:31:27.293329+00:00",
+  "generated_at": "2026-03-29T13:21:44.410043+00:00",
   "repository": {
     "owner": "sip-it",
     "name": "build_rsc",
@@ -68,7 +68,7 @@
       "found": true,
       "optional": true,
       "source_url": "https://raw.githubusercontent.com/sip-it/build_rsc/self-list/self-list.txt",
-      "geoip_entries": 10,
+      "geoip_entries": 16,
       "geosite_entries": 483,
       "ignored": 1,
       "geoip_duplicates_skipped": 0,
@@ -78,7 +78,7 @@
     },
     "dns_adlist": {
       "category": "category-ads-all",
-      "entries": 157551,
+      "entries": 157592,
       "skipped": {
         "invalid_domain": 5
       },
