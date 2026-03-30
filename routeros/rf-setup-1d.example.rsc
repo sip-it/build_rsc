@@ -1,0 +1,8 @@
+# Import update scripts first: rf-update-community.example.rsc and rf-update-dns-adlist.example.rsc
+:local dnsUrl "https://raw.githubusercontent.com/sip-it/build_rsc/release/dns/category-ads-all.txt"
+/ip dns adlist
+:if ([:len [find where url=$dnsUrl]] = 0) do={ add url=$dnsUrl ssl-verify=no }
+/system scheduler remove [find where name="rf-update-community-1d"]
+/system scheduler add name="rf-update-community-1d" start-time=03:10:00 interval=1d on-event=rf-update-community
+/system scheduler remove [find where name="rf-update-dns-adlist-1d"]
+/system scheduler add name="rf-update-dns-adlist-1d" start-time=03:20:00 interval=1d on-event=rf-update-dns-adlist

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-30T09:51:05.184758+00:00",
+  "generated_at": "2026-03-30T10:14:28.211139+00:00",
   "repository": {
     "owner": "sip-it",
     "name": "build_rsc",
@@ -11,9 +11,12 @@
   },
   "output": {
     "combined_rsc": "rsc/community-antifilter.rsc",
-    "routeros_script": "routeros/rf-update-community.rsc",
     "dns_adlist": "dns/category-ads-all.txt",
-    "readme": "README.md"
+    "readme": "README.md",
+    "routeros_update_script": "routeros/rf-update-community.example.rsc",
+    "routeros_dns_reload_script": "routeros/rf-update-dns-adlist.example.rsc",
+    "routeros_setup_1d": "routeros/rf-setup-1d.example.rsc",
+    "routeros_setup_7d": "routeros/rf-setup-7d.example.rsc"
   },
   "bundle": {
     "list_name": "antifilter-community",
@@ -78,7 +81,7 @@
     },
     "dns_adlist": {
       "category": "category-ads-all",
-      "entries": 157868,
+      "entries": 157908,
       "skipped": {
         "invalid_domain": 5
       },
