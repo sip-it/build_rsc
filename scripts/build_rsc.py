@@ -13,7 +13,6 @@ import urllib.request
 from collections import OrderedDict
 from datetime import datetime, timezone
 
-
 DOMAIN_RE = re.compile(
     r"^(?=.{1,253}$)(?!-)(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,63}\.?$"
 )
@@ -74,16 +73,12 @@ def ensure_clean_dir(path: pathlib.Path) -> None:
 
 def normalize_geoip_line(line: str) -> str | None:
     value = line.strip()
-    if not value:
+    if not value or any(value.startswith(prefix) for prefix in COMMENT_PREFIXES):
         return None
-    if any(value.startswith(prefix) for prefix in COMMENT_PREFIXES):
-        return None
-
     value = value.split("#", 1)[0].strip()
     value = value.split(";", 1)[0].strip()
     if not value:
         return None
-
     try:
         if "/" in value:
             network = ipaddress.ip_network(value, strict=False)
@@ -96,9 +91,7 @@ def normalize_geoip_line(line: str) -> str | None:
 
 def normalize_geosite_line(line: str) -> tuple[str | None, str | None]:
     raw = line.strip()
-    if not raw:
-        return None, None
-    if any(raw.startswith(prefix) for prefix in COMMENT_PREFIXES):
+    if not raw or any(raw.startswith(prefix) for prefix in COMMENT_PREFIXES):
         return None, None
 
     raw = raw.split("#", 1)[0].strip()
@@ -127,10 +120,8 @@ def normalize_geosite_line(line: str) -> tuple[str | None, str | None]:
 
     if not value:
         return None, "empty"
-
     if ":" in value or "/" in value:
         return None, "unsupported_value"
-
     if not DOMAIN_RE.match(value):
         return None, "invalid_domain"
 
@@ -139,11 +130,8 @@ def normalize_geosite_line(line: str) -> tuple[str | None, str | None]:
 
 def normalize_self_list_line(line: str) -> tuple[str | None, str | None]:
     raw = line.strip()
-    if not raw:
+    if not raw or any(raw.startswith(prefix) for prefix in COMMENT_PREFIXES):
         return None, None
-    if any(raw.startswith(prefix) for prefix in COMMENT_PREFIXES):
-        return None, None
-
     raw = raw.split("#", 1)[0].strip()
     raw = raw.split(";", 1)[0].strip()
     if not raw:
@@ -177,7 +165,6 @@ def expand_domain_entries(
 
         if not add_www:
             continue
-
         if normalized.startswith("www."):
             continue
 
@@ -216,32 +203,80 @@ def build_add_lines(list_name: str, entries: list[str], comment: str, is_domain:
     return lines
 
 
-def render_routeros_update_script(combined_relative_path: str) -> str:
+def render_update_community_script(raw_base: str, combined_relative_path: str, list_name: str) -> str:
     return "\n".join(
         [
-            "# Example update script for RouterOS",
             "/system script",
             "add name=rf-update-community policy=read,write,test source={",
-            '    :local baseUrl "https://raw.githubusercontent.com/sip-it/build_rsc/release"',
-            f'    :local file "{combined_relative_path}"',
-            '    :local url ($baseUrl . "/" . $file)',
+            f'    :local url "{raw_base}/{combined_relative_path}"',
             '    :local dst "tmp-community-antifilter.rsc"',
+            f'    :local listName "{list_name}"',
             '    :log info ("rf-update-community: downloading " . $url)',
             '    :do {',
             '        /tool fetch url=$url dst-path=$dst keep-result=yes',
             '        :if ([:len [/file find where name=$dst]] = 0) do={',
-            '            :error ("download failed: " . $file)',
+            '            :error "downloaded file not found after fetch"',
             '        }',
-            '        /import file-name=$dst verbose=yes',
-            '        /file remove [find where name=$dst]',
-            '        :log info ("rf-update-community: imported " . $file)',
+            '        :log info ("rf-update-community: cleaning static entries in list " . $listName)',
+            '        /ip firewall address-list remove [/ip firewall address-list find where list=$listName and dynamic=no]',
+            '        :delay 3s',
+            '        :onerror e in={',
+            '            /import file-name=$dst verbose=yes',
+            '        } do={',
+            '            :log error ("rf-update-community: import failed: " . $e)',
+            '            :error $e',
+            '        }',
+            '        :log info "rf-update-community: import done"',
             '    } on-error={',
-            '        :log error ("rf-update-community: failed " . $file)',
-            '        :if ([:len [/file find where name=$dst]] > 0) do={',
-            '            /file remove [find where name=$dst]',
-            '        }',
+            '        :log error ("rf-update-community: failed: " . $message)',
+            '    }',
+            '    :if ([:len [/file find where name=$dst]] > 0) do={',
+            '        /file remove [find where name=$dst]',
             '    }',
             '}',
+            '',
+        ]
+    )
+
+
+def render_update_dns_script(raw_base: str, dns_relative_path: str) -> str:
+    return "\n".join(
+        [
+            "/system script",
+            "add name=rf-update-dns-adlist policy=read,write,test source={",
+            f'    :local url "{raw_base}/{dns_relative_path}"',
+            '    :log info ("rf-update-dns-adlist: ensuring adlist url " . $url)',
+            '    :if ([:len [/ip dns adlist find where url=$url]] = 0) do={',
+            '        /ip dns adlist add url=$url ssl-verify=no',
+            '        :delay 2s',
+            '    }',
+            '    :do {',
+            '        /ip dns adlist reload',
+            '        :log info "rf-update-dns-adlist: reload done"',
+            '    } on-error={',
+            '        :log error ("rf-update-dns-adlist: failed: " . $message)',
+            '    }',
+            '}',
+            '',
+        ]
+    )
+
+
+def render_setup_script(interval: str, raw_base: str, dns_relative_path: str) -> str:
+    dns_url = f"{raw_base}/{dns_relative_path}"
+    start_a = "03:10:00"
+    start_d = "03:20:00"
+    name_suffix = interval.replace("d", "d")
+    return "\n".join(
+        [
+            '# Import update scripts first: rf-update-community.example.rsc and rf-update-dns-adlist.example.rsc',
+            ':local dnsUrl "' + dns_url + '"',
+            '/ip dns adlist',
+            ':if ([:len [find where url=$dnsUrl]] = 0) do={ add url=$dnsUrl ssl-verify=no }',
+            '/system scheduler remove [find where name="rf-update-community-' + name_suffix + '"]',
+            '/system scheduler add name="rf-update-community-' + name_suffix + '" start-time=' + start_a + ' interval=' + interval + ' on-event=rf-update-community',
+            '/system scheduler remove [find where name="rf-update-dns-adlist-' + name_suffix + '"]',
+            '/system scheduler add name="rf-update-dns-adlist-' + name_suffix + '" start-time=' + start_d + ' interval=' + interval + ' on-event=rf-update-dns-adlist',
             '',
         ]
     )
@@ -253,23 +288,24 @@ def render_release_readme(
     release_branch: str,
     combined_relative_path: str,
     dns_relative_path: str,
-    routeros_relative_path: str,
+    update_relative_path: str,
+    dns_update_relative_path: str,
+    setup_1d_relative_path: str,
+    setup_7d_relative_path: str,
 ) -> str:
     raw_base = f"https://raw.githubusercontent.com/{repo_owner}/{repo_name}/{release_branch}"
-
-    combined_url = f"{raw_base}/{combined_relative_path}"
-    dns_url = f"{raw_base}/{dns_relative_path}"
-    routeros_url = f"{raw_base}/{routeros_relative_path}"
-
     return "\n".join(
         [
             "# Generated release files",
             "",
             "Полезные ссылки:",
             "",
-            f"- community-antifilter.rsc: `{combined_url}`",
-            f"- dns adlist category-ads-all.txt: `{dns_url}`",
-            f"- RouterOS update script example: `{routeros_url}`",
+            f"- community-antifilter.rsc: `{raw_base}/{combined_relative_path}`",
+            f"- dns adlist category-ads-all.txt: `{raw_base}/{dns_relative_path}`",
+            f"- RouterOS update address-list: `{raw_base}/{update_relative_path}`",
+            f"- RouterOS update dns adlist: `{raw_base}/{dns_update_relative_path}`",
+            f"- RouterOS setup 1d: `{raw_base}/{setup_1d_relative_path}`",
+            f"- RouterOS setup 7d: `{raw_base}/{setup_7d_relative_path}`",
             "",
             "Содержимое `community-antifilter.rsc`:",
             "- geoip:ru-blocked-community",
@@ -279,8 +315,9 @@ def render_release_readme(
             "Особенности сборки:",
             "- geosite:category-ads-all не включается в общий `.rsc`, только в отдельный DNS adlist",
             "- доменные записи в общем `.rsc` дополняются вариантом с `www.`",
-            "- `www.` не добавляется для доменов, начинающихся с `api.` или `cdn.`",
+            "- для `api.*` и `cdn.*` вариант `www.` не добавляется",
             "- при дедупликации приоритет у community-источников, потом self-list",
+            "- для self-list используются разные comments для geoip и geosite",
             "",
         ]
     )
@@ -296,18 +333,24 @@ def main() -> int:
     repo_owner = config["repository"]["owner"]
     repo_name = config["repository"]["name"]
     release_branch = config["repository"]["release_branch"]
+    raw_base = f"https://raw.githubusercontent.com/{repo_owner}/{repo_name}/{release_branch}"
 
     geoip_base = config["sources"]["geoip_base"].rstrip("/")
     geosite_base = config["sources"]["geosite_base"].rstrip("/")
 
-    combined_relative_path = config["output"]["combined_rsc"]
-    routeros_relative_path = config["output"]["routeros_script"]
-    dns_relative_path = config["output"]["dns_adlist"]
-    readme_relative_path = config["output"]["readme"]
+    output_cfg = config["output"]
+    combined_relative_path = output_cfg["combined_rsc"]
+    dns_relative_path = output_cfg["dns_adlist"]
+    readme_relative_path = output_cfg["readme"]
+    update_relative_path = output_cfg["routeros_update_script"]
+    dns_update_relative_path = output_cfg["routeros_dns_reload_script"]
+    setup_1d_relative_path = output_cfg["routeros_setup_1d"]
+    setup_7d_relative_path = output_cfg["routeros_setup_7d"]
 
-    bundle_list_name = config["bundle"]["list_name"]
-    geoip_categories = config["bundle"].get("geoip_categories", [])
-    geosite_categories = config["bundle"].get("geosite_categories", [])
+    bundle_cfg = config["bundle"]
+    bundle_list_name = bundle_cfg["list_name"]
+    geoip_categories = bundle_cfg.get("geoip_categories", [])
+    geosite_categories = bundle_cfg.get("geosite_categories", [])
 
     dns_adlist_category = config["dns_adlist"]["category"]
 
@@ -324,42 +367,38 @@ def main() -> int:
         for prefix in domain_variants_cfg.get("skip_www_for_prefixes", [])
         if str(prefix).strip()
     }
+
     dedup_cfg = config.get("deduplication", {})
     dedup_enabled = dedup_cfg.get("enabled", True)
 
     ensure_clean_dir(output_root)
-
     raw_dir = output_root / "raw"
     raw_dir.mkdir(parents=True, exist_ok=True)
 
-    combined_path = output_root / combined_relative_path
-    combined_path.parent.mkdir(parents=True, exist_ok=True)
+    def ensure_output(path_text: str) -> pathlib.Path:
+        path = output_root / path_text
+        path.parent.mkdir(parents=True, exist_ok=True)
+        return path
 
-    dns_adlist_path = output_root / dns_relative_path
-    dns_adlist_path.parent.mkdir(parents=True, exist_ok=True)
-
-    routeros_path = output_root / routeros_relative_path
-    routeros_path.parent.mkdir(parents=True, exist_ok=True)
-
-    release_readme_path = output_root / readme_relative_path
-    release_readme_path.parent.mkdir(parents=True, exist_ok=True)
+    combined_path = ensure_output(combined_relative_path)
+    dns_adlist_path = ensure_output(dns_relative_path)
+    readme_path = ensure_output(readme_relative_path)
+    update_path = ensure_output(update_relative_path)
+    dns_update_path = ensure_output(dns_update_relative_path)
+    setup_1d_path = ensure_output(setup_1d_relative_path)
+    setup_7d_path = ensure_output(setup_7d_relative_path)
 
     manifest: dict = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "repository": config["repository"],
         "sources": config["sources"],
-        "output": config["output"],
-        "bundle": config["bundle"],
+        "output": output_cfg,
+        "bundle": bundle_cfg,
         "dns_adlist": config["dns_adlist"],
         "self_list": self_list_cfg,
-        "domain_variants": config.get("domain_variants", {}),
+        "domain_variants": domain_variants_cfg,
         "deduplication": dedup_cfg,
-        "stats": {
-            "geoip": {},
-            "geosite": {},
-            "self_list": {},
-            "dns_adlist": {},
-        },
+        "stats": {"geoip": {}, "geosite": {}, "self_list": {}, "dns_adlist": {}},
     }
 
     combined_lines: list[str] = [
@@ -370,7 +409,6 @@ def main() -> int:
 
     seen_geoip: set[str] = set()
     seen_domains: set[str] = set()
-
     community_geoip_blocks: list[list[str]] = []
     community_geosite_blocks: list[list[str]] = []
     self_geoip_block: list[str] = []
@@ -431,11 +469,7 @@ def main() -> int:
                 continue
             entries_map.setdefault(normalized, None)
 
-        entries = expand_domain_entries(
-            list(entries_map.keys()),
-            add_www_in_combined_rsc,
-            skip_www_prefixes,
-        )
+        entries = expand_domain_entries(list(entries_map.keys()), add_www_in_combined_rsc, skip_www_prefixes)
         duplicates_skipped = 0
         if dedup_enabled:
             entries, duplicates_skipped = filter_unique_entries(entries, seen_domains)
@@ -462,7 +496,6 @@ def main() -> int:
     if self_list_enabled:
         self_list_url = f"https://raw.githubusercontent.com/{repo_owner}/{repo_name}/{self_list_branch}/{self_list_path}"
         print(f"build self-list:{self_list_url}")
-
         content = fetch_optional_text(self_list_url) if self_list_optional else fetch_text(self_list_url)
 
         if content is None:
@@ -478,7 +511,6 @@ def main() -> int:
             geoip_entries_map: OrderedDict[str, None] = OrderedDict()
             geosite_entries_map: OrderedDict[str, None] = OrderedDict()
             ignored = 0
-
             for line in content.splitlines():
                 normalized, entry_type = normalize_self_list_line(line)
                 if normalized is None or entry_type is None:
@@ -486,7 +518,7 @@ def main() -> int:
                     continue
                 if entry_type == "geoip":
                     geoip_entries_map.setdefault(normalized, None)
-                elif entry_type == "geosite":
+                else:
                     geosite_entries_map.setdefault(normalized, None)
 
             self_geoip_entries = list(geoip_entries_map.keys())
@@ -498,7 +530,6 @@ def main() -> int:
 
             self_geoip_duplicates = 0
             self_geosite_duplicates = 0
-
             if dedup_enabled:
                 self_geoip_entries, self_geoip_duplicates = filter_unique_entries(self_geoip_entries, seen_geoip)
                 self_geosite_entries, self_geosite_duplicates = filter_unique_entries(self_geosite_entries, seen_domains)
@@ -564,7 +595,6 @@ def main() -> int:
 
     dns_entries = list(dns_entries_map.keys())
     dns_adlist_path.write_text("\n".join(dns_entries).rstrip() + "\n", encoding="utf-8", newline="\n")
-
     manifest["stats"]["dns_adlist"] = {
         "category": dns_adlist_category,
         "entries": len(dns_entries),
@@ -572,31 +602,46 @@ def main() -> int:
         "source_url": dns_url,
     }
 
-    routeros_path.write_text(
-        render_routeros_update_script(combined_relative_path),
+    update_path.write_text(
+        render_update_community_script(raw_base, combined_relative_path, bundle_list_name),
         encoding="utf-8",
         newline="\n",
     )
-
-    release_readme_path.write_text(
+    dns_update_path.write_text(
+        render_update_dns_script(raw_base, dns_relative_path),
+        encoding="utf-8",
+        newline="\n",
+    )
+    setup_1d_path.write_text(
+        render_setup_script("1d", raw_base, dns_relative_path),
+        encoding="utf-8",
+        newline="\n",
+    )
+    setup_7d_path.write_text(
+        render_setup_script("7d", raw_base, dns_relative_path),
+        encoding="utf-8",
+        newline="\n",
+    )
+    readme_path.write_text(
         render_release_readme(
             repo_owner=repo_owner,
             repo_name=repo_name,
             release_branch=release_branch,
             combined_relative_path=combined_relative_path,
             dns_relative_path=dns_relative_path,
-            routeros_relative_path=routeros_relative_path,
+            update_relative_path=update_relative_path,
+            dns_update_relative_path=dns_update_relative_path,
+            setup_1d_relative_path=setup_1d_relative_path,
+            setup_7d_relative_path=setup_7d_relative_path,
         ),
         encoding="utf-8",
         newline="\n",
     )
-
     (output_root / "manifest.json").write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
         newline="\n",
     )
-
     return 0
 
 

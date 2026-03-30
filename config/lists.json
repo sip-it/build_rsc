@@ -10,9 +10,12 @@
   },
   "output": {
     "combined_rsc": "rsc/community-antifilter.rsc",
-    "routeros_script": "routeros/rf-update-community.rsc",
     "dns_adlist": "dns/category-ads-all.txt",
-    "readme": "README.md"
+    "readme": "README.md",
+    "routeros_update_script": "routeros/rf-update-community.example.rsc",
+    "routeros_dns_reload_script": "routeros/rf-update-dns-adlist.example.rsc",
+    "routeros_setup_1d": "routeros/rf-setup-1d.example.rsc",
+    "routeros_setup_7d": "routeros/rf-setup-7d.example.rsc"
   },
   "bundle": {
     "list_name": "antifilter-community",

@@ -10,6 +10,7 @@ on:
       - 'scripts/build_rsc.py'
       - 'config/lists.json'
       - 'README.md'
+      - 'routeros/*.rsc'
 
 permissions:
   contents: write
