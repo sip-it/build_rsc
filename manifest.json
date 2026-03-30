@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-30T09:25:10.273618+00:00",
+  "generated_at": "2026-03-30T09:51:05.184758+00:00",
   "repository": {
     "owner": "sip-it",
     "name": "build_rsc",
@@ -68,7 +68,7 @@
       "found": true,
       "optional": true,
       "source_url": "https://raw.githubusercontent.com/sip-it/build_rsc/self-list/self-list.txt",
-      "geoip_entries": 22,
+      "geoip_entries": 17,
       "geosite_entries": 485,
       "ignored": 1,
       "geoip_duplicates_skipped": 5,
