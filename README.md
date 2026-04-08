@@ -16,7 +16,9 @@
 
 Особенности сборки:
 - geosite:category-ads-all не включается в общий `.rsc`, только в отдельный DNS adlist
-- доменные записи в общем `.rsc` дополняются вариантом с `www.`
-- для `api.*` и `cdn.*` вариант `www.` не добавляется
+- отдельные `www.`-дубли не генерируются
+- поддомены, включая `www.*`, предполагается обрабатывать на RouterOS через `match-subdomain=yes`
+- `community-antifilter.rsc` использует упрощенную доменную модель для downstream-сценария `match-subdomain=yes`
+- `raw/*` сохраняет исходные upstream/self-list данные без упрощения
 - при дедупликации приоритет у community-источников, потом self-list
 - для self-list используются разные comments для geoip и geosite

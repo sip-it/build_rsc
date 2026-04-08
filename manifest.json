@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-08T14:11:39.220111+00:00",
+  "generated_at": "2026-04-08T15:26:59.452216+00:00",
   "repository": {
     "owner": "sip-it",
     "name": "build_rsc",
@@ -25,7 +25,8 @@
     ],
     "geosite_categories": [
       "antifilter-download-community"
-    ]
+    ],
+    "simplify_domains_for_match_subdomain": true
   },
   "dns_adlist": {
     "category": "category-ads-all"
@@ -37,11 +38,12 @@
     "optional": true
   },
   "domain_variants": {
-    "add_www_in_combined_rsc": true,
-    "skip_www_for_prefixes": [
-      "api",
-      "cdn"
-    ]
+    "add_www_in_combined_rsc": false,
+    "skip_www_for_prefixes": []
+  },
+  "match_subdomain_output": {
+    "enabled": false,
+    "prune_redundant_children_when_parent_present": true
   },
   "deduplication": {
     "enabled": true,
@@ -59,9 +61,11 @@
     },
     "geosite": {
       "antifilter-download-community": {
-        "entries": 904,
+        "entries": 480,
+        "exact_domains_for_match_subdomain": 480,
         "skipped": {},
         "duplicates_skipped": 0,
+        "match_subdomain_duplicates_skipped": 0,
         "comment": "src=github:geosite:antifilter-download-community",
         "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geosite/release/antifilter-download-community.txt"
       }
@@ -72,10 +76,12 @@
       "optional": true,
       "source_url": "https://raw.githubusercontent.com/sip-it/build_rsc/self-list/self-list.txt",
       "geoip_entries": 18,
-      "geosite_entries": 483,
+      "geosite_entries": 259,
+      "geosite_exact_domains_for_match_subdomain": 259,
       "ignored": 1,
       "geoip_duplicates_skipped": 5,
-      "geosite_duplicates_skipped": 86,
+      "geosite_duplicates_skipped": 45,
+      "geosite_match_subdomain_duplicates_skipped": 45,
       "geoip_comment": "src=github:self-list:geoip",
       "geosite_comment": "src=github:self-list:geosite"
     },
@@ -86,6 +92,16 @@
         "invalid_domain": 5
       },
       "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geosite/release/category-ads-all.txt"
+    },
+    "match_subdomain_output": {
+      "enabled": false,
+      "entries": 0,
+      "pruned_redundant_children": 0
+    },
+    "combined_rsc_domains": {
+      "entries": 591,
+      "pruned_redundant_children": 148,
+      "simplify_domains_for_match_subdomain": true
     }
   }
 }
