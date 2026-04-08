@@ -25,6 +25,13 @@
 
 `geosite:category-ads-all` в общий `.rsc` не включается.
 
+Доменные записи в этом файле оптимизированы под downstream-сценарий, где RouterOS
+дальше использует `DNS static FWD` с `match-subdomain=yes`:
+
+- `www.` отдельно не дублируется
+- если в наборе уже есть базовый домен, дочерние поддомены в итоговом `.rsc` удаляются как избыточные
+- `raw/*` при этом не переписывается и остается снимком исходных данных
+
 ## Что входит в DNS adlist
 
 Отдельный файл `dns/category-ads-all.txt`.
@@ -35,14 +42,16 @@
 
 ## Особенности
 
-- для доменных записей в `community-antifilter.rsc` добавляется вариант с `www.`
-- для `api.*` и `cdn.*` вариант `www.` не добавляется
+- для доменных записей не добавляется отдельный вариант с `www.`
+- поддомены, включая `www.*`, обрабатываются на RouterOS через `DNS static FWD` c `match-subdomain=yes`
+- итоговый `community-antifilter.rsc` тоже упрощается по этой модели
 - есть дедупликация между источниками
 - приоритет у community-источников, потом `self-list`
 - для `self-list` используются разные comments:
   - `src=github:self-list:geoip`
   - `src=github:self-list:geosite`
 - RouterOS update script очищает только `dynamic=no` записи, чтобы не падать на динамических DNS-resolved entries
+- `raw/*` сохраняет исходные upstream/self-list данные без упрощения
 
 ## RouterOS
 

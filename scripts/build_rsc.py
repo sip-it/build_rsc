@@ -189,6 +189,29 @@ def filter_unique_entries(entries: list[str], seen: set[str]) -> tuple[list[str]
     return result, duplicates
 
 
+def prune_redundant_subdomains(entries: list[str]) -> tuple[list[str], int]:
+    universe = set(entries)
+    result: list[str] = []
+    removed = 0
+
+    for entry in entries:
+        labels = entry.split(".")
+        redundant = False
+        for idx in range(1, len(labels) - 1):
+            parent = ".".join(labels[idx:])
+            if parent in universe:
+                redundant = True
+                break
+
+        if redundant:
+            removed += 1
+            continue
+
+        result.append(entry)
+
+    return result, removed
+
+
 def build_remove_line(list_name: str, comment: str) -> str:
     return f'/ip firewall address-list remove [find where list="{list_name}" comment="{comment}"]'
 
@@ -292,35 +315,50 @@ def render_release_readme(
     dns_update_relative_path: str,
     setup_1d_relative_path: str,
     setup_7d_relative_path: str,
+    add_www_in_combined_rsc: bool,
+    skip_www_prefixes: set[str] | None = None,
 ) -> str:
     raw_base = f"https://raw.githubusercontent.com/{repo_owner}/{repo_name}/{release_branch}"
-    return "\n".join(
+    lines = [
+        "# Generated release files",
+        "",
+        "Полезные ссылки:",
+        "",
+        f"- community-antifilter.rsc: `{raw_base}/{combined_relative_path}`",
+        f"- dns adlist category-ads-all.txt: `{raw_base}/{dns_relative_path}`",
+        f"- RouterOS update address-list: `{raw_base}/{update_relative_path}`",
+        f"- RouterOS update dns adlist: `{raw_base}/{dns_update_relative_path}`",
+        f"- RouterOS setup 1d: `{raw_base}/{setup_1d_relative_path}`",
+        f"- RouterOS setup 7d: `{raw_base}/{setup_7d_relative_path}`",
+        "",
+        "Содержимое `community-antifilter.rsc`:",
+        "- geoip:ru-blocked-community",
+        "- geosite:antifilter-download-community",
+        "- self-list.txt из ветки `self-list`, если файл существует",
+        "",
+        "Особенности сборки:",
+        "- geosite:category-ads-all не включается в общий `.rsc`, только в отдельный DNS adlist",
+    ]
+
+    if add_www_in_combined_rsc:
+        lines.append("- доменные записи в общем `.rsc` дополняются вариантом с `www.`")
+        if skip_www_prefixes:
+            prefixes = ", ".join(f"`{prefix}.*`" for prefix in sorted(skip_www_prefixes))
+            lines.append(f"- для {prefixes} вариант `www.` не добавляется")
+    else:
+        lines.append("- отдельные `www.`-дубли не генерируются")
+        lines.append("- поддомены, включая `www.*`, предполагается обрабатывать на RouterOS через `match-subdomain=yes`")
+
+    lines.extend(
         [
-            "# Generated release files",
-            "",
-            "Полезные ссылки:",
-            "",
-            f"- community-antifilter.rsc: `{raw_base}/{combined_relative_path}`",
-            f"- dns adlist category-ads-all.txt: `{raw_base}/{dns_relative_path}`",
-            f"- RouterOS update address-list: `{raw_base}/{update_relative_path}`",
-            f"- RouterOS update dns adlist: `{raw_base}/{dns_update_relative_path}`",
-            f"- RouterOS setup 1d: `{raw_base}/{setup_1d_relative_path}`",
-            f"- RouterOS setup 7d: `{raw_base}/{setup_7d_relative_path}`",
-            "",
-            "Содержимое `community-antifilter.rsc`:",
-            "- geoip:ru-blocked-community",
-            "- geosite:antifilter-download-community",
-            "- self-list.txt из ветки `self-list`, если файл существует",
-            "",
-            "Особенности сборки:",
-            "- geosite:category-ads-all не включается в общий `.rsc`, только в отдельный DNS adlist",
-            "- доменные записи в общем `.rsc` дополняются вариантом с `www.`",
-            "- для `api.*` и `cdn.*` вариант `www.` не добавляется",
+            "- `community-antifilter.rsc` использует упрощенную доменную модель для downstream-сценария `match-subdomain=yes`",
+            "- `raw/*` сохраняет исходные upstream/self-list данные без упрощения",
             "- при дедупликации приоритет у community-источников, потом self-list",
             "- для self-list используются разные comments для geoip и geosite",
             "",
         ]
     )
+    return "\n".join(lines)
 
 
 def main() -> int:
@@ -351,6 +389,7 @@ def main() -> int:
     bundle_list_name = bundle_cfg["list_name"]
     geoip_categories = bundle_cfg.get("geoip_categories", [])
     geosite_categories = bundle_cfg.get("geosite_categories", [])
+    simplify_domains_for_match_subdomain = bundle_cfg.get("simplify_domains_for_match_subdomain", False)
 
     dns_adlist_category = config["dns_adlist"]["category"]
 
@@ -367,6 +406,11 @@ def main() -> int:
         for prefix in domain_variants_cfg.get("skip_www_for_prefixes", [])
         if str(prefix).strip()
     }
+    match_subdomain_cfg = config.get("match_subdomain_output", {})
+    match_subdomain_enabled = match_subdomain_cfg.get("enabled", True)
+    prune_match_subdomain_children = match_subdomain_cfg.get(
+        "prune_redundant_children_when_parent_present", True
+    )
 
     dedup_cfg = config.get("deduplication", {})
     dedup_enabled = dedup_cfg.get("enabled", True)
@@ -397,8 +441,15 @@ def main() -> int:
         "dns_adlist": config["dns_adlist"],
         "self_list": self_list_cfg,
         "domain_variants": domain_variants_cfg,
+        "match_subdomain_output": match_subdomain_cfg,
         "deduplication": dedup_cfg,
-        "stats": {"geoip": {}, "geosite": {}, "self_list": {}, "dns_adlist": {}},
+        "stats": {
+            "geoip": {},
+            "geosite": {},
+            "self_list": {},
+            "dns_adlist": {},
+            "match_subdomain_output": {},
+        },
     }
 
     combined_lines: list[str] = [
@@ -409,10 +460,12 @@ def main() -> int:
 
     seen_geoip: set[str] = set()
     seen_domains: set[str] = set()
+    seen_match_subdomain_domains: set[str] = set()
+    match_subdomain_domains: list[str] = []
     community_geoip_blocks: list[list[str]] = []
-    community_geosite_blocks: list[list[str]] = []
+    community_geosite_sources: list[dict] = []
     self_geoip_block: list[str] = []
-    self_geosite_block: list[str] = []
+    self_geosite_source: dict | None = None
 
     for name in geoip_categories:
         url = f"{geoip_base}/{name}.txt"
@@ -469,26 +522,34 @@ def main() -> int:
                 continue
             entries_map.setdefault(normalized, None)
 
+        exact_entries = list(entries_map.keys())
+        match_subdomain_duplicates_skipped = 0
+        if dedup_enabled:
+            exact_entries, match_subdomain_duplicates_skipped = filter_unique_entries(
+                exact_entries, seen_match_subdomain_domains
+            )
+        match_subdomain_domains.extend(exact_entries)
+
         entries = expand_domain_entries(list(entries_map.keys()), add_www_in_combined_rsc, skip_www_prefixes)
         duplicates_skipped = 0
         if dedup_enabled:
             entries, duplicates_skipped = filter_unique_entries(entries, seen_domains)
 
         comment = f"src=github:geosite:{name}"
-        if entries:
-            community_geosite_blocks.append(
-                [
-                    f"# geosite:{name}",
-                    build_remove_line(bundle_list_name, comment),
-                    *build_add_lines(bundle_list_name, entries, comment, is_domain=True),
-                    "",
-                ]
-            )
+        community_geosite_sources.append(
+            {
+                "header": f"# geosite:{name}",
+                "comment": comment,
+                "entries": entries,
+            }
+        )
 
         manifest["stats"]["geosite"][name] = {
             "entries": len(entries),
+            "exact_domains_for_match_subdomain": len(exact_entries),
             "skipped": skipped,
             "duplicates_skipped": duplicates_skipped,
+            "match_subdomain_duplicates_skipped": match_subdomain_duplicates_skipped,
             "comment": comment,
             "source_url": url,
         }
@@ -521,6 +582,14 @@ def main() -> int:
                 else:
                     geosite_entries_map.setdefault(normalized, None)
 
+            self_geosite_exact_entries = list(geosite_entries_map.keys())
+            self_geosite_match_duplicates = 0
+            if dedup_enabled:
+                self_geosite_exact_entries, self_geosite_match_duplicates = filter_unique_entries(
+                    self_geosite_exact_entries, seen_match_subdomain_domains
+                )
+            match_subdomain_domains.extend(self_geosite_exact_entries)
+
             self_geoip_entries = list(geoip_entries_map.keys())
             self_geosite_entries = expand_domain_entries(
                 list(geosite_entries_map.keys()),
@@ -545,13 +614,11 @@ def main() -> int:
                     "",
                 ]
 
-            if self_geosite_entries:
-                self_geosite_block = [
-                    "# self-list geosite",
-                    build_remove_line(bundle_list_name, self_geosite_comment),
-                    *build_add_lines(bundle_list_name, self_geosite_entries, self_geosite_comment, is_domain=True),
-                    "",
-                ]
+            self_geosite_source = {
+                "header": "# self-list geosite",
+                "comment": self_geosite_comment,
+                "entries": self_geosite_entries,
+            }
 
             manifest["stats"]["self_list"] = {
                 "enabled": True,
@@ -560,12 +627,57 @@ def main() -> int:
                 "source_url": self_list_url,
                 "geoip_entries": len(self_geoip_entries),
                 "geosite_entries": len(self_geosite_entries),
+                "geosite_exact_domains_for_match_subdomain": len(self_geosite_exact_entries),
                 "ignored": ignored,
                 "geoip_duplicates_skipped": self_geoip_duplicates,
                 "geosite_duplicates_skipped": self_geosite_duplicates,
+                "geosite_match_subdomain_duplicates_skipped": self_geosite_match_duplicates,
                 "geoip_comment": self_geoip_comment,
                 "geosite_comment": self_geosite_comment,
             }
+
+    combined_domains = [entry for source in community_geosite_sources for entry in source["entries"]]
+    if self_geosite_source:
+        combined_domains.extend(self_geosite_source["entries"])
+
+    pruned_combined_domains = list(combined_domains)
+    pruned_combined_children = 0
+    if simplify_domains_for_match_subdomain:
+        pruned_combined_domains, pruned_combined_children = prune_redundant_subdomains(combined_domains)
+
+    combined_domain_survivors = set(pruned_combined_domains)
+    manifest["stats"]["combined_rsc_domains"] = {
+        "entries": len(pruned_combined_domains),
+        "pruned_redundant_children": pruned_combined_children,
+        "simplify_domains_for_match_subdomain": simplify_domains_for_match_subdomain,
+    }
+
+    community_geosite_blocks: list[list[str]] = []
+    for source in community_geosite_sources:
+        entries = [entry for entry in source["entries"] if entry in combined_domain_survivors]
+        if entries:
+            community_geosite_blocks.append(
+                [
+                    source["header"],
+                    build_remove_line(bundle_list_name, source["comment"]),
+                    *build_add_lines(bundle_list_name, entries, source["comment"], is_domain=True),
+                    "",
+                ]
+            )
+
+    if self_geosite_source:
+        self_entries = [entry for entry in self_geosite_source["entries"] if entry in combined_domain_survivors]
+        if self_entries:
+            self_geosite_block = [
+                self_geosite_source["header"],
+                build_remove_line(bundle_list_name, self_geosite_source["comment"]),
+                *build_add_lines(bundle_list_name, self_entries, self_geosite_source["comment"], is_domain=True),
+                "",
+            ]
+        else:
+            self_geosite_block = []
+    else:
+        self_geosite_block = []
 
     for block in community_geoip_blocks:
         combined_lines.extend(block)
@@ -577,6 +689,19 @@ def main() -> int:
         combined_lines.extend(self_geosite_block)
 
     combined_path.write_text("\n".join(combined_lines).rstrip() + "\n", encoding="utf-8", newline="\n")
+
+    pruned_match_subdomain_domains = list(match_subdomain_domains)
+    pruned_match_subdomain_children = 0
+    if match_subdomain_enabled and prune_match_subdomain_children:
+        pruned_match_subdomain_domains, pruned_match_subdomain_children = prune_redundant_subdomains(
+            pruned_match_subdomain_domains
+        )
+
+    manifest["stats"]["match_subdomain_output"] = {
+        "enabled": match_subdomain_enabled,
+        "entries": len(pruned_match_subdomain_domains) if match_subdomain_enabled else 0,
+        "pruned_redundant_children": pruned_match_subdomain_children,
+    }
 
     dns_url = f"{geosite_base}/{dns_adlist_category}.txt"
     print(f"build dns-adlist:{dns_adlist_category}")
@@ -633,6 +758,8 @@ def main() -> int:
             dns_update_relative_path=dns_update_relative_path,
             setup_1d_relative_path=setup_1d_relative_path,
             setup_7d_relative_path=setup_7d_relative_path,
+            add_www_in_combined_rsc=add_www_in_combined_rsc,
+            skip_www_prefixes=skip_www_prefixes,
         ),
         encoding="utf-8",
         newline="\n",

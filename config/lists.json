@@ -24,7 +24,8 @@
     ],
     "geosite_categories": [
       "antifilter-download-community"
-    ]
+    ],
+    "simplify_domains_for_match_subdomain": true
   },
   "dns_adlist": {
     "category": "category-ads-all"
@@ -36,11 +37,12 @@
     "optional": true
   },
   "domain_variants": {
-    "add_www_in_combined_rsc": true,
-    "skip_www_for_prefixes": [
-      "api",
-      "cdn"
-    ]
+    "add_www_in_combined_rsc": false,
+    "skip_www_for_prefixes": []
+  },
+  "match_subdomain_output": {
+    "enabled": false,
+    "prune_redundant_children_when_parent_present": true
   },
   "deduplication": {
     "enabled": true,

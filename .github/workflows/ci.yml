@@ -1,0 +1,48 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+env:
+  PYTHONUNBUFFERED: "1"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dev tools
+        run: python -m pip install --upgrade pip ruff
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Smoke build
+        run: python scripts/build_rsc.py --config config/lists.json --output dist
+
+      - name: Verify generated files
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f dist/rsc/community-antifilter.rsc
+          test -f dist/dns/category-ads-all.txt
+          test -f dist/routeros/rf-update-community.example.rsc
+          test -f dist/routeros/rf-update-dns-adlist.example.rsc
+          test -f dist/routeros/rf-setup-1d.example.rsc
+          test -f dist/routeros/rf-setup-7d.example.rsc
+          test -f dist/manifest.json
+          test -f dist/README.md
