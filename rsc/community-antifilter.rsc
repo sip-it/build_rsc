@@ -1,5 +1,5 @@
 # Combined MikroTik RSC generated from runetfreedom/community sources
-# Generated at 2026-04-08T14:04:42.854600+00:00
+# Generated at 2026-04-08T14:11:39.220111+00:00
 
 # geoip:ru-blocked-community
 /ip firewall address-list remove [find where list="antifilter-community" comment="src=github:geoip:ru-blocked-community"]
@@ -2200,8 +2200,6 @@ add list="antifilter-community" address="registry.k8s.io" comment="src=github:se
 add list="antifilter-community" address="www.registry.k8s.io" comment="src=github:self-list:geosite"
 add list="antifilter-community" address="coder.com" comment="src=github:self-list:geosite"
 add list="antifilter-community" address="www.coder.com" comment="src=github:self-list:geosite"
-add list="antifilter-community" address="nvidiagrid.net" comment="src=github:self-list:geosite"
-add list="antifilter-community" address="www.nvidiagrid.net" comment="src=github:self-list:geosite"
 add list="antifilter-community" address="akamaihd.net" comment="src=github:self-list:geosite"
 add list="antifilter-community" address="www.akamaihd.net" comment="src=github:self-list:geosite"
 add list="antifilter-community" address="nvidia.com" comment="src=github:self-list:geosite"
