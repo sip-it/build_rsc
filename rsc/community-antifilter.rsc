@@ -1,5 +1,5 @@
 # Combined MikroTik RSC generated from runetfreedom/community sources
-# Generated at 2026-04-18T21:35:28.400645+00:00
+# Generated at 2026-04-18T22:13:16.147086+00:00
 
 # geoip:ru-blocked-community
 /ip firewall address-list remove [find where list="antifilter-community" comment="src=github:geoip:ru-blocked-community"]
@@ -1298,12 +1298,6 @@ add list="antifilter-community" address="zona.media" comment="src=github:geosite
 # self-list geoip
 /ip firewall address-list remove [find where list="antifilter-community" comment="src=github:self-list:geoip"]
 /ip firewall address-list
-add list="antifilter-community" address=198.41.200.43 comment="src=github:self-list:geoip"
-add list="antifilter-community" address=198.41.200.113 comment="src=github:self-list:geoip"
-add list="antifilter-community" address=198.41.192.167 comment="src=github:self-list:geoip"
-add list="antifilter-community" address=198.41.192.107 comment="src=github:self-list:geoip"
-add list="antifilter-community" address=198.41.192.77 comment="src=github:self-list:geoip"
-add list="antifilter-community" address=198.41.192.27 comment="src=github:self-list:geoip"
 add list="antifilter-community" address=172.217.0.0/16 comment="src=github:self-list:geoip"
 add list="antifilter-community" address=173.194.0.0/16 comment="src=github:self-list:geoip"
 add list="antifilter-community" address=64.233.160.0/19 comment="src=github:self-list:geoip"
