@@ -1,5 +1,5 @@
 # Combined MikroTik RSC generated from runetfreedom/community sources
-# Generated at 2026-04-21T08:12:11.793012+00:00
+# Generated at 2026-04-21T12:18:51.761814+00:00
 
 # geoip:ru-blocked-community
 /ip firewall address-list remove [find where list="antifilter-community" comment="src=github:geoip:ru-blocked-community"]
@@ -1507,3 +1507,4 @@ add list="antifilter-community" address="nicegram.app" comment="src=github:self-
 add list="antifilter-community" address="telegramdownload.com" comment="src=github:self-list:geosite"
 add list="antifilter-community" address="tgram.org" comment="src=github:self-list:geosite"
 add list="antifilter-community" address="torg.org" comment="src=github:self-list:geosite"
+add list="antifilter-community" address="cloudflare.com" comment="src=github:self-list:geosite"
