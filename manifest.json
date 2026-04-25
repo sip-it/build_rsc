@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-24T19:15:08.980390+00:00",
+  "generated_at": "2026-04-25T03:34:56.544885+00:00",
   "repository": {
     "owner": "sip-it",
     "name": "build_rsc",
@@ -61,8 +61,8 @@
     },
     "geosite": {
       "antifilter-download-community": {
-        "entries": 480,
-        "exact_domains_for_match_subdomain": 480,
+        "entries": 481,
+        "exact_domains_for_match_subdomain": 481,
         "skipped": {},
         "duplicates_skipped": 0,
         "match_subdomain_duplicates_skipped": 0,
@@ -87,7 +87,7 @@
     },
     "dns_adlist": {
       "category": "category-ads-all",
-      "entries": 157595,
+      "entries": 157649,
       "skipped": {
         "invalid_domain": 5
       },
@@ -99,7 +99,7 @@
       "pruned_redundant_children": 0
     },
     "combined_rsc_domains": {
-      "entries": 592,
+      "entries": 593,
       "pruned_redundant_children": 148,
       "simplify_domains_for_match_subdomain": true
     }
