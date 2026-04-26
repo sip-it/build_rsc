@@ -125,6 +125,7 @@ www.youtube.ru
 x.com
 youtu.be
 youtube.com
+googleapis.com
 youtube.googleapis.com
 youtube.ru
 youtubeeducation.com
