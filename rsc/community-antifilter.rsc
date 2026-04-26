@@ -1,5 +1,5 @@
 # Combined MikroTik RSC generated from runetfreedom/community sources
-# Generated at 2026-04-26T13:43:01.626450+00:00
+# Generated at 2026-04-26T18:11:44.285476+00:00
 
 # geoip:ru-blocked-community
 /ip firewall address-list remove [find where list="antifilter-community" comment="src=github:geoip:ru-blocked-community"]
@@ -971,6 +971,7 @@ add list="antifilter-community" address="clamav.net" comment="src=github:geosite
 add list="antifilter-community" address="claude.ai" comment="src=github:geosite:antifilter-download-community"
 add list="antifilter-community" address="cloud.mongodb.com" comment="src=github:geosite:antifilter-download-community"
 add list="antifilter-community" address="cloudflare-dns.com" comment="src=github:geosite:antifilter-download-community"
+add list="antifilter-community" address="cloudflare-ech.com" comment="src=github:geosite:antifilter-download-community"
 add list="antifilter-community" address="codeium.com" comment="src=github:geosite:antifilter-download-community"
 add list="antifilter-community" address="colta.ru" comment="src=github:geosite:antifilter-download-community"
 add list="antifilter-community" address="coomer.su" comment="src=github:geosite:antifilter-download-community"
@@ -1382,14 +1383,12 @@ add list="antifilter-community" address="wide-youtube.l.google.com" comment="src
 add list="antifilter-community" address="widget.intercom.io" comment="src=github:self-list:geosite"
 add list="antifilter-community" address="withyoutube.com" comment="src=github:self-list:geosite"
 add list="antifilter-community" address="youtube.com" comment="src=github:self-list:geosite"
-add list="antifilter-community" address="youtube.googleapis.com" comment="src=github:self-list:geosite"
+add list="antifilter-community" address="googleapis.com" comment="src=github:self-list:geosite"
 add list="antifilter-community" address="youtube.ru" comment="src=github:self-list:geosite"
 add list="antifilter-community" address="youtubeeducation.com" comment="src=github:self-list:geosite"
-add list="antifilter-community" address="youtubeembeddedplayer.googleapis.com" comment="src=github:self-list:geosite"
 add list="antifilter-community" address="youtubefanfest.com" comment="src=github:self-list:geosite"
 add list="antifilter-community" address="youtubegaming.com" comment="src=github:self-list:geosite"
 add list="antifilter-community" address="youtubego.com" comment="src=github:self-list:geosite"
-add list="antifilter-community" address="youtubei.googleapis.com" comment="src=github:self-list:geosite"
 add list="antifilter-community" address="youtubekids.com" comment="src=github:self-list:geosite"
 add list="antifilter-community" address="youtube-nocookie.com" comment="src=github:self-list:geosite"
 add list="antifilter-community" address="youtube-ui.l.google.com" comment="src=github:self-list:geosite"
@@ -1447,7 +1446,6 @@ add list="antifilter-community" address="default.exp-tas.com" comment="src=githu
 add list="antifilter-community" address="amd.com" comment="src=github:self-list:geosite"
 add list="antifilter-community" address="dl.bobpony.com" comment="src=github:self-list:geosite"
 add list="antifilter-community" address="searchgpt.com" comment="src=github:self-list:geosite"
-add list="antifilter-community" address="generativelanguage.googleapis.com" comment="src=github:self-list:geosite"
 add list="antifilter-community" address="openwebui.com" comment="src=github:self-list:geosite"
 add list="antifilter-community" address="weisb.net" comment="src=github:self-list:geosite"
 add list="antifilter-community" address="manus.im" comment="src=github:self-list:geosite"
