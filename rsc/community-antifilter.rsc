@@ -1,5 +1,5 @@
 # Combined MikroTik RSC generated from runetfreedom/community sources
-# Generated at 2026-04-30T17:40:04.707664+00:00
+# Generated at 2026-04-30T17:43:54.147916+00:00
 
 # geoip:ru-blocked-community
 /ip firewall address-list remove [find where list="antifilter-community" comment="src=github:geoip:ru-blocked-community"]
@@ -916,7 +916,6 @@ add list="antifilter-community" address="animestars.org" comment="src=github:geo
 add list="antifilter-community" address="ansys.com" comment="src=github:geosite:antifilter-download-community"
 add list="antifilter-community" address="antizapret.prostovpn.org" comment="src=github:geosite:antifilter-download-community"
 add list="antifilter-community" address="api.app.prod.grazie.aws.intellij.net" comment="src=github:geosite:antifilter-download-community"
-add list="antifilter-community" address="api.github.com" comment="src=github:geosite:antifilter-download-community"
 add list="antifilter-community" address="api.home-connect.com" comment="src=github:geosite:antifilter-download-community"
 add list="antifilter-community" address="api.protonmail.ch" comment="src=github:geosite:antifilter-download-community"
 add list="antifilter-community" address="api.radarr.video" comment="src=github:geosite:antifilter-download-community"

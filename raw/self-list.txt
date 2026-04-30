@@ -330,3 +330,4 @@ tgram.org
 torg.org
 cloudflare.com
 pathofbuilding.community
+!api.github.com
