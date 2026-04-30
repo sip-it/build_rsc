@@ -128,24 +128,30 @@ def normalize_geosite_line(line: str) -> tuple[str | None, str | None]:
     return value.lower().rstrip("."), None
 
 
-def normalize_self_list_line(line: str) -> tuple[str | None, str | None]:
+def normalize_self_list_line(line: str) -> tuple[str | None, str | None, bool]:
     raw = line.strip()
     if not raw or any(raw.startswith(prefix) for prefix in COMMENT_PREFIXES):
-        return None, None
+        return None, None, False
     raw = raw.split("#", 1)[0].strip()
     raw = raw.split(";", 1)[0].strip()
     if not raw:
-        return None, None
+        return None, None, False
+
+    excluded = raw.startswith("!")
+    if excluded:
+        raw = raw[1:].strip()
+        if not raw:
+            return None, None, True
 
     geoip = normalize_geoip_line(raw)
     if geoip is not None:
-        return geoip, "geoip"
+        return geoip, "geoip", excluded
 
     geosite, _ = normalize_geosite_line(raw)
     if geosite is not None:
-        return geosite, "geosite"
+        return geosite, "geosite", excluded
 
-    return None, None
+    return None, None, excluded
 
 
 def expand_domain_entries(
@@ -187,6 +193,40 @@ def filter_unique_entries(entries: list[str], seen: set[str]) -> tuple[list[str]
         seen.add(entry)
         result.append(entry)
     return result, duplicates
+
+
+def filter_excluded_domains(entries: list[str], excluded: set[str]) -> tuple[list[str], int]:
+    if not excluded:
+        return entries, 0
+
+    result: list[str] = []
+    removed = 0
+    for entry in entries:
+        if any(entry == domain or entry.endswith(f".{domain}") for domain in excluded):
+            removed += 1
+            continue
+        result.append(entry)
+    return result, removed
+
+
+def geoip_entry_network(entry: str) -> ipaddress.IPv4Network | ipaddress.IPv6Network:
+    return ipaddress.ip_network(entry, strict=False)
+
+
+def filter_excluded_geoip(entries: list[str], excluded: set[str]) -> tuple[list[str], int]:
+    if not excluded:
+        return entries, 0
+
+    excluded_networks = [geoip_entry_network(entry) for entry in excluded]
+    result: list[str] = []
+    removed = 0
+    for entry in entries:
+        network = geoip_entry_network(entry)
+        if any(network.version == excluded.version and network.subnet_of(excluded) for excluded in excluded_networks):
+            removed += 1
+            continue
+        result.append(entry)
+    return result, removed
 
 
 def prune_redundant_subdomains(entries: list[str]) -> tuple[list[str], int]:
@@ -355,6 +395,7 @@ def render_release_readme(
             "- `raw/*` сохраняет исходные upstream/self-list данные без упрощения",
             "- при дедупликации приоритет у community-источников, потом self-list",
             "- для self-list используются разные comments для geoip и geosite",
+            "- записи self-list с префиксом `!` исключаются из финального `community-antifilter.rsc`",
             "",
         ]
     )
@@ -462,10 +503,12 @@ def main() -> int:
     seen_domains: set[str] = set()
     seen_match_subdomain_domains: set[str] = set()
     match_subdomain_domains: list[str] = []
-    community_geoip_blocks: list[list[str]] = []
+    community_geoip_sources: list[dict] = []
     community_geosite_sources: list[dict] = []
     self_geoip_block: list[str] = []
     self_geosite_source: dict | None = None
+    excluded_geoip: set[str] = set()
+    excluded_domains: set[str] = set()
 
     for name in geoip_categories:
         url = f"{geoip_base}/{name}.txt"
@@ -488,15 +531,14 @@ def main() -> int:
             entries, duplicates_skipped = filter_unique_entries(entries, seen_geoip)
 
         comment = f"src=github:geoip:{name}"
-        if entries:
-            community_geoip_blocks.append(
-                [
-                    f"# geoip:{name}",
-                    build_remove_line(bundle_list_name, comment),
-                    *build_add_lines(bundle_list_name, entries, comment, is_domain=False),
-                    "",
-                ]
-            )
+        community_geoip_sources.append(
+            {
+                "name": name,
+                "header": f"# geoip:{name}",
+                "comment": comment,
+                "entries": entries,
+            }
+        )
 
         manifest["stats"]["geoip"][name] = {
             "entries": len(entries),
@@ -538,6 +580,7 @@ def main() -> int:
         comment = f"src=github:geosite:{name}"
         community_geosite_sources.append(
             {
+                "name": name,
                 "header": f"# geosite:{name}",
                 "comment": comment,
                 "entries": entries,
@@ -571,18 +614,31 @@ def main() -> int:
 
             geoip_entries_map: OrderedDict[str, None] = OrderedDict()
             geosite_entries_map: OrderedDict[str, None] = OrderedDict()
+            geoip_excluded_map: OrderedDict[str, None] = OrderedDict()
+            geosite_excluded_map: OrderedDict[str, None] = OrderedDict()
             ignored = 0
             for line in content.splitlines():
-                normalized, entry_type = normalize_self_list_line(line)
+                normalized, entry_type, excluded = normalize_self_list_line(line)
                 if normalized is None or entry_type is None:
                     ignored += 1
                     continue
-                if entry_type == "geoip":
+                if entry_type == "geoip" and excluded:
+                    geoip_excluded_map.setdefault(normalized, None)
+                elif entry_type == "geosite" and excluded:
+                    geosite_excluded_map.setdefault(normalized, None)
+                elif entry_type == "geoip":
                     geoip_entries_map.setdefault(normalized, None)
                 else:
                     geosite_entries_map.setdefault(normalized, None)
 
+            excluded_geoip.update(geoip_excluded_map.keys())
+            excluded_domains.update(geosite_excluded_map.keys())
+
             self_geosite_exact_entries = list(geosite_entries_map.keys())
+            self_geosite_exact_entries, self_geosite_match_excluded = filter_excluded_domains(
+                self_geosite_exact_entries,
+                excluded_domains,
+            )
             self_geosite_match_duplicates = 0
             if dedup_enabled:
                 self_geosite_exact_entries, self_geosite_match_duplicates = filter_unique_entries(
@@ -595,6 +651,11 @@ def main() -> int:
                 list(geosite_entries_map.keys()),
                 add_www_in_combined_rsc,
                 skip_www_prefixes,
+            )
+            self_geoip_entries, self_geoip_excluded = filter_excluded_geoip(self_geoip_entries, excluded_geoip)
+            self_geosite_entries, self_geosite_excluded = filter_excluded_domains(
+                self_geosite_entries,
+                excluded_domains,
             )
 
             self_geoip_duplicates = 0
@@ -628,6 +689,11 @@ def main() -> int:
                 "geoip_entries": len(self_geoip_entries),
                 "geosite_entries": len(self_geosite_entries),
                 "geosite_exact_domains_for_match_subdomain": len(self_geosite_exact_entries),
+                "geoip_exclusions": len(geoip_excluded_map),
+                "geosite_exclusions": len(geosite_excluded_map),
+                "self_geoip_entries_excluded": self_geoip_excluded,
+                "self_geosite_entries_excluded": self_geosite_excluded,
+                "self_geosite_match_subdomain_excluded": self_geosite_match_excluded,
                 "ignored": ignored,
                 "geoip_duplicates_skipped": self_geoip_duplicates,
                 "geosite_duplicates_skipped": self_geosite_duplicates,
@@ -635,6 +701,34 @@ def main() -> int:
                 "geoip_comment": self_geoip_comment,
                 "geosite_comment": self_geosite_comment,
             }
+
+    geoip_excluded_total = 0
+    for source in community_geoip_sources:
+        source["entries"], excluded_count = filter_excluded_geoip(source["entries"], excluded_geoip)
+        geoip_excluded_total += excluded_count
+        source_stats = manifest["stats"]["geoip"][source["name"]]
+        source_stats["entries"] = len(source["entries"])
+        source_stats["excluded_by_self_list"] = excluded_count
+
+    geosite_excluded_total = 0
+    for source in community_geosite_sources:
+        source["entries"], excluded_count = filter_excluded_domains(source["entries"], excluded_domains)
+        geosite_excluded_total += excluded_count
+        source_stats = manifest["stats"]["geosite"][source["name"]]
+        source_stats["entries"] = len(source["entries"])
+        source_stats["excluded_by_self_list"] = excluded_count
+
+    match_subdomain_domains, match_subdomain_excluded = filter_excluded_domains(
+        match_subdomain_domains,
+        excluded_domains,
+    )
+    manifest["stats"]["self_list_exclusions"] = {
+        "geoip": len(excluded_geoip),
+        "geosite": len(excluded_domains),
+        "geoip_entries_removed_from_community": geoip_excluded_total,
+        "geosite_entries_removed_from_community": geosite_excluded_total,
+        "match_subdomain_entries_removed": match_subdomain_excluded,
+    }
 
     combined_domains = [entry for source in community_geosite_sources for entry in source["entries"]]
     if self_geosite_source:
@@ -679,7 +773,16 @@ def main() -> int:
     else:
         self_geosite_block = []
 
-    for block in community_geoip_blocks:
+    for source in community_geoip_sources:
+        entries = source["entries"]
+        if not entries:
+            continue
+        block = [
+            source["header"],
+            build_remove_line(bundle_list_name, source["comment"]),
+            *build_add_lines(bundle_list_name, entries, source["comment"], is_domain=False),
+            "",
+        ]
         combined_lines.extend(block)
     for block in community_geosite_blocks:
         combined_lines.extend(block)

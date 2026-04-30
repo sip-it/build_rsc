@@ -47,6 +47,7 @@
 - итоговый `community-antifilter.rsc` тоже упрощается по этой модели
 - есть дедупликация между источниками
 - приоритет у community-источников, потом `self-list`
+- записи `self-list` с префиксом `!` исключают домен или IP/CIDR из финального `community-antifilter.rsc`
 - для `self-list` используются разные comments:
   - `src=github:self-list:geoip`
   - `src=github:self-list:geosite`
@@ -71,4 +72,7 @@ speedtest.net
 10.20.30.0/24
 api.example.org
 cdn.example.org
+!excluded.example.com
+!1.2.3.4
+!10.20.30.0/24
 ```
