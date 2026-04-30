@@ -22,3 +22,4 @@
 - `raw/*` сохраняет исходные upstream/self-list данные без упрощения
 - при дедупликации приоритет у community-источников, потом self-list
 - для self-list используются разные comments для geoip и geosite
+- записи self-list с префиксом `!` исключаются из финального `community-antifilter.rsc`
