@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-30T17:35:55.243085+00:00",
+  "generated_at": "2026-04-30T17:37:44.871381+00:00",
   "repository": {
     "owner": "sip-it",
     "name": "build_rsc",
@@ -87,8 +87,8 @@
       "self_geosite_match_subdomain_excluded": 0,
       "ignored": 1,
       "geoip_duplicates_skipped": 5,
-      "geosite_duplicates_skipped": 45,
-      "geosite_match_subdomain_duplicates_skipped": 45,
+      "geosite_duplicates_skipped": 46,
+      "geosite_match_subdomain_duplicates_skipped": 46,
       "geoip_comment": "src=github:self-list:geoip",
       "geosite_comment": "src=github:self-list:geosite"
     },
