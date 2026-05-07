@@ -1,5 +1,5 @@
 # Combined MikroTik RSC generated from runetfreedom/community sources
-# Generated at 2026-05-07T09:07:35.110554+00:00
+# Generated at 2026-05-07T15:07:06.305654+00:00
 
 # geoip:ru-blocked-community
 /ip firewall address-list remove [find where list="antifilter-community" comment="src=github:geoip:ru-blocked-community"]
@@ -613,6 +613,7 @@ add list="antifilter-community" address=150.241.248.0/24 comment="src=github:geo
 add list="antifilter-community" address=151.101.0.81/32 comment="src=github:geoip:ru-blocked-community"
 add list="antifilter-community" address=151.101.1.194/32 comment="src=github:geoip:ru-blocked-community"
 add list="antifilter-community" address=151.101.1.224/32 comment="src=github:geoip:ru-blocked-community"
+add list="antifilter-community" address=151.101.1.229/32 comment="src=github:geoip:ru-blocked-community"
 add list="antifilter-community" address=151.101.2.132/32 comment="src=github:geoip:ru-blocked-community"
 add list="antifilter-community" address=151.101.2.152/32 comment="src=github:geoip:ru-blocked-community"
 add list="antifilter-community" address=151.101.2.217/32 comment="src=github:geoip:ru-blocked-community"
@@ -623,6 +624,7 @@ add list="antifilter-community" address=151.101.36.159/32 comment="src=github:ge
 add list="antifilter-community" address=151.101.64.81/32 comment="src=github:geoip:ru-blocked-community"
 add list="antifilter-community" address=151.101.65.194/32 comment="src=github:geoip:ru-blocked-community"
 add list="antifilter-community" address=151.101.65.224/32 comment="src=github:geoip:ru-blocked-community"
+add list="antifilter-community" address=151.101.65.229/32 comment="src=github:geoip:ru-blocked-community"
 add list="antifilter-community" address=151.101.66.132/32 comment="src=github:geoip:ru-blocked-community"
 add list="antifilter-community" address=151.101.66.152/32 comment="src=github:geoip:ru-blocked-community"
 add list="antifilter-community" address=151.101.66.217/32 comment="src=github:geoip:ru-blocked-community"
@@ -631,6 +633,7 @@ add list="antifilter-community" address=151.101.84.0/24 comment="src=github:geoi
 add list="antifilter-community" address=151.101.128.81/32 comment="src=github:geoip:ru-blocked-community"
 add list="antifilter-community" address=151.101.129.194/32 comment="src=github:geoip:ru-blocked-community"
 add list="antifilter-community" address=151.101.129.224/32 comment="src=github:geoip:ru-blocked-community"
+add list="antifilter-community" address=151.101.129.229/32 comment="src=github:geoip:ru-blocked-community"
 add list="antifilter-community" address=151.101.130.132/32 comment="src=github:geoip:ru-blocked-community"
 add list="antifilter-community" address=151.101.130.152/32 comment="src=github:geoip:ru-blocked-community"
 add list="antifilter-community" address=151.101.130.217/32 comment="src=github:geoip:ru-blocked-community"
@@ -638,6 +641,7 @@ add list="antifilter-community" address=151.101.131.42/32 comment="src=github:ge
 add list="antifilter-community" address=151.101.192.81/32 comment="src=github:geoip:ru-blocked-community"
 add list="antifilter-community" address=151.101.193.194/32 comment="src=github:geoip:ru-blocked-community"
 add list="antifilter-community" address=151.101.193.224/32 comment="src=github:geoip:ru-blocked-community"
+add list="antifilter-community" address=151.101.193.229/32 comment="src=github:geoip:ru-blocked-community"
 add list="antifilter-community" address=151.101.194.132/32 comment="src=github:geoip:ru-blocked-community"
 add list="antifilter-community" address=151.101.194.152/32 comment="src=github:geoip:ru-blocked-community"
 add list="antifilter-community" address=151.101.194.217/32 comment="src=github:geoip:ru-blocked-community"
@@ -928,6 +932,7 @@ add list="antifilter-community" address="bt4.t-ru.org" comment="src=github:geosi
 add list="antifilter-community" address="builds.parsec.app" comment="src=github:geosite:antifilter-download-community"
 add list="antifilter-community" address="canva.com" comment="src=github:geosite:antifilter-download-community"
 add list="antifilter-community" address="cdn.id.supercell.com" comment="src=github:geosite:antifilter-download-community"
+add list="antifilter-community" address="cdn.jsdelivr.net" comment="src=github:geosite:antifilter-download-community"
 add list="antifilter-community" address="cdn2site.com" comment="src=github:geosite:antifilter-download-community"
 add list="antifilter-community" address="cdninstagram.com" comment="src=github:geosite:antifilter-download-community"
 add list="antifilter-community" address="certifytheweb.com" comment="src=github:geosite:antifilter-download-community"
