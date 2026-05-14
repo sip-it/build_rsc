@@ -1,5 +1,5 @@
 # Combined MikroTik RSC generated from runetfreedom/community sources
-# Generated at 2026-05-14T09:10:52.536383+00:00
+# Generated at 2026-05-14T14:46:13.508864+00:00
 
 # geoip:ru-blocked-community
 /ip firewall address-list remove [find where list="antifilter-community" comment="src=github:geoip:ru-blocked-community"]
@@ -861,6 +861,10 @@ add list="antifilter-community" address=216.52.22.0/23 comment="src=github:geoip
 add list="antifilter-community" address=216.131.39.0/24 comment="src=github:geoip:ru-blocked-community"
 add list="antifilter-community" address=216.198.79.1/32 comment="src=github:geoip:ru-blocked-community"
 add list="antifilter-community" address=217.140.110.36/32 comment="src=github:geoip:ru-blocked-community"
+add list="antifilter-community" address=2001:67c:4e8::/48 comment="src=github:geoip:ru-blocked-community"
+add list="antifilter-community" address=2001:b28:f23c::/47 comment="src=github:geoip:ru-blocked-community"
+add list="antifilter-community" address=2001:b28:f23f::/48 comment="src=github:geoip:ru-blocked-community"
+add list="antifilter-community" address=2a0a:f280::/32 comment="src=github:geoip:ru-blocked-community"
 
 # geosite:antifilter-download-community
 /ip firewall address-list remove [find where list="antifilter-community" comment="src=github:geosite:antifilter-download-community"]
