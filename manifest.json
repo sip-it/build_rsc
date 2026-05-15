@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-15T09:25:45.105509+00:00",
+  "generated_at": "2026-05-15T12:55:07.532744+00:00",
   "repository": {
     "owner": "sip-it",
     "name": "build_rsc",
@@ -52,12 +52,12 @@
   "stats": {
     "geoip": {
       "ru-blocked-community": {
-        "entries": 900,
+        "entries": 896,
         "invalid_or_skipped": 0,
         "duplicates_skipped": 0,
         "comment": "src=github:geoip:ru-blocked-community",
         "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geoip/release/text/ru-blocked-community.txt",
-        "excluded_by_self_list": 0
+        "excluded_by_self_list": 4
       }
     },
     "geosite": {
@@ -80,7 +80,7 @@
       "geoip_entries": 18,
       "geosite_entries": 262,
       "geosite_exact_domains_for_match_subdomain": 262,
-      "geoip_exclusions": 0,
+      "geoip_exclusions": 4,
       "geosite_exclusions": 1,
       "self_geoip_entries_excluded": 0,
       "self_geosite_entries_excluded": 0,
@@ -94,7 +94,7 @@
     },
     "dns_adlist": {
       "category": "category-ads-all",
-      "entries": 159443,
+      "entries": 159496,
       "skipped": {
         "invalid_domain": 5
       },
@@ -106,9 +106,9 @@
       "pruned_redundant_children": 0
     },
     "self_list_exclusions": {
-      "geoip": 0,
+      "geoip": 4,
       "geosite": 1,
-      "geoip_entries_removed_from_community": 0,
+      "geoip_entries_removed_from_community": 4,
       "geosite_entries_removed_from_community": 1,
       "match_subdomain_entries_removed": 1
     },
