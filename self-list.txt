@@ -184,8 +184,6 @@ mail.proton.me
 gmail.com
 ultimaker.com
 minerstat.com
-clickadu.com
-adv.clickadu.com
 www.notion.so
 notion.so
 www.notion.com
