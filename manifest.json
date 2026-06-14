@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-13T19:56:45.985790+00:00",
+  "generated_at": "2026-06-14T05:11:26.982995+00:00",
   "repository": {
     "owner": "sip-it",
     "name": "build_rsc",
@@ -94,7 +94,7 @@
     },
     "dns_adlist": {
       "category": "category-ads-all",
-      "entries": 152772,
+      "entries": 152843,
       "skipped": {
         "invalid_domain": 5
       },
