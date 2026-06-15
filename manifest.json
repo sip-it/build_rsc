@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-15T05:31:14.521719+00:00",
+  "generated_at": "2026-06-15T12:45:25.662170+00:00",
   "repository": {
     "owner": "sip-it",
     "name": "build_rsc",
@@ -52,7 +52,7 @@
   "stats": {
     "geoip": {
       "ru-blocked-community": {
-        "entries": 904,
+        "entries": 886,
         "invalid_or_skipped": 0,
         "duplicates_skipped": 0,
         "comment": "src=github:geoip:ru-blocked-community",
@@ -94,7 +94,7 @@
     },
     "dns_adlist": {
       "category": "category-ads-all",
-      "entries": 153173,
+      "entries": 150844,
       "skipped": {
         "invalid_domain": 5
       },
