@@ -329,6 +329,7 @@ torg.org
 cloudflare.com
 pathofbuilding.community
 factory.talos.dev
+ghcr.io
 !api.github.com
 !2001:67c:4e8::/48
 !2001:b28:f23c::/47
