@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-26T15:05:10.466844+00:00",
+  "generated_at": "2026-06-26T20:13:29.775755+00:00",
   "repository": {
     "owner": "sip-it",
     "name": "build_rsc",
@@ -78,8 +78,8 @@
       "optional": true,
       "source_url": "https://raw.githubusercontent.com/sip-it/build_rsc/self-list/self-list.txt",
       "geoip_entries": 18,
-      "geosite_entries": 262,
-      "geosite_exact_domains_for_match_subdomain": 262,
+      "geosite_entries": 261,
+      "geosite_exact_domains_for_match_subdomain": 261,
       "geoip_exclusions": 4,
       "geosite_exclusions": 1,
       "self_geoip_entries_excluded": 0,
@@ -94,7 +94,7 @@
     },
     "dns_adlist": {
       "category": "category-ads-all",
-      "entries": 153486,
+      "entries": 153555,
       "skipped": {
         "invalid_domain": 5
       },
@@ -113,7 +113,7 @@
       "match_subdomain_entries_removed": 1
     },
     "combined_rsc_domains": {
-      "entries": 594,
+      "entries": 593,
       "pruned_redundant_children": 151,
       "simplify_domains_for_match_subdomain": true
     }
