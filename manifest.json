@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-28T19:55:50.199918+00:00",
+  "generated_at": "2026-07-29T03:44:42.880013+00:00",
   "repository": {
     "owner": "sip-it",
     "name": "build_rsc",
@@ -94,9 +94,9 @@
     },
     "dns_adlist": {
       "category": "category-ads-all",
-      "entries": 173959,
+      "entries": 155457,
       "skipped": {
-        "invalid_domain": 3
+        "invalid_domain": 5
       },
       "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geosite/release/category-ads-all.txt"
     },
