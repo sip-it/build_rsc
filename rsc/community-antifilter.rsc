@@ -1,5 +1,5 @@
 # Combined MikroTik RSC generated from runetfreedom/community sources
-# Generated at 2026-08-10T19:25:03.349975+00:00
+# Generated at 2026-08-11T02:30:57.949522+00:00
 
 # geoip:ru-blocked-community
 /ip firewall address-list remove [find where list="antifilter-community" comment="src=github:geoip:ru-blocked-community"]
