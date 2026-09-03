@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-03T04:40:11.120398+00:00",
+  "generated_at": "2026-09-03T11:24:41.823914+00:00",
   "repository": {
     "owner": "sip-it",
     "name": "build_rsc",
@@ -52,7 +52,7 @@
   "stats": {
     "geoip": {
       "ru-blocked-community": {
-        "entries": 912,
+        "entries": 922,
         "invalid_or_skipped": 0,
         "duplicates_skipped": 0,
         "comment": "src=github:geoip:ru-blocked-community",
