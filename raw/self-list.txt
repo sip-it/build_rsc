@@ -276,7 +276,6 @@ cdn.npmmirror.com
 mega.nz
 www.mega.nz
 zedom.net
-registry.npmjs.org
 npmmirror.com
 45.95.201.237
 ollama.ai
@@ -332,6 +331,11 @@ factory.talos.dev
 virtualhere.com
 amd.com
 k8slens.dev
+npmjs.org
+prisma.sh
+docker.io
+docker.io
+production.cloudfront.docker.com
 !api.github.com
 !2001:67c:4e8::/48
 !2001:b28:f23c::/47

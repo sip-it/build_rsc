@@ -1,5 +1,5 @@
 # Combined MikroTik RSC generated from runetfreedom/community sources
-# Generated at 2026-09-18T11:26:30.730889+00:00
+# Generated at 2026-09-18T15:12:25.531154+00:00
 
 # geoip:ru-blocked-community
 /ip firewall address-list remove [find where list="antifilter-community" comment="src=github:geoip:ru-blocked-community"]
@@ -1470,7 +1470,6 @@ add list="antifilter-community" address="nvidia.com" comment="src=github:self-li
 add list="antifilter-community" address="ipay.arca.am" comment="src=github:self-list:geosite"
 add list="antifilter-community" address="mega.nz" comment="src=github:self-list:geosite"
 add list="antifilter-community" address="zedom.net" comment="src=github:self-list:geosite"
-add list="antifilter-community" address="registry.npmjs.org" comment="src=github:self-list:geosite"
 add list="antifilter-community" address="npmmirror.com" comment="src=github:self-list:geosite"
 add list="antifilter-community" address="ollama.ai" comment="src=github:self-list:geosite"
 add list="antifilter-community" address="cloudflarestorage.com" comment="src=github:self-list:geosite"
@@ -1522,3 +1521,7 @@ add list="antifilter-community" address="pathofbuilding.community" comment="src=
 add list="antifilter-community" address="factory.talos.dev" comment="src=github:self-list:geosite"
 add list="antifilter-community" address="virtualhere.com" comment="src=github:self-list:geosite"
 add list="antifilter-community" address="k8slens.dev" comment="src=github:self-list:geosite"
+add list="antifilter-community" address="npmjs.org" comment="src=github:self-list:geosite"
+add list="antifilter-community" address="prisma.sh" comment="src=github:self-list:geosite"
+add list="antifilter-community" address="docker.io" comment="src=github:self-list:geosite"
+add list="antifilter-community" address="production.cloudfront.docker.com" comment="src=github:self-list:geosite"
