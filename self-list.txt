@@ -336,15 +336,6 @@ prisma.sh
 docker.io
 docker.io
 production.cloudfront.docker.com
-cftunnel.com
-region1.v2.argotunnel.com
-region2.v2.argotunnel.com
-h2.cftunnel.com
-quic.cftunnel.com
-probe.cftunnel.com
-api.cloudflare.com
-us-region1.v2.argotunnel.com
-us-region2.v2.argotunnel.com
 !api.github.com
 !2001:67c:4e8::/48
 !2001:b28:f23c::/47
