@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-05T05:52:18.212895+00:00",
+  "generated_at": "2026-10-05T14:02:51.490359+00:00",
   "repository": {
     "owner": "sip-it",
     "name": "build_rsc",
@@ -52,7 +52,7 @@
   "stats": {
     "geoip": {
       "ru-blocked-community": {
-        "entries": 907,
+        "entries": 910,
         "invalid_or_skipped": 0,
         "duplicates_skipped": 0,
         "comment": "src=github:geoip:ru-blocked-community",
@@ -78,8 +78,8 @@
       "optional": true,
       "source_url": "https://raw.githubusercontent.com/sip-it/build_rsc/self-list/self-list.txt",
       "geoip_entries": 18,
-      "geosite_entries": 268,
-      "geosite_exact_domains_for_match_subdomain": 268,
+      "geosite_entries": 267,
+      "geosite_exact_domains_for_match_subdomain": 267,
       "geoip_exclusions": 4,
       "geosite_exclusions": 1,
       "self_geoip_entries_excluded": 0,
@@ -113,7 +113,7 @@
       "match_subdomain_entries_removed": 1
     },
     "combined_rsc_domains": {
-      "entries": 600,
+      "entries": 599,
       "pruned_redundant_children": 151,
       "simplify_domains_for_match_subdomain": true
     }
