@@ -339,6 +339,13 @@ production.cloudfront.docker.com
 cardinaltrusted.com
 cloudflareclient.com
 cloudflareaccess.com
+github.com
+github.dev
+github.io
+githubassets.com
+githubcopilot.com
+githubapp.com
+githubusercontent.com
 !api.github.com
 !2001:67c:4e8::/48
 !2001:b28:f23c::/47
