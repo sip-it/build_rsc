@@ -346,6 +346,7 @@ githubassets.com
 githubcopilot.com
 githubapp.com
 githubusercontent.com
+speedtest.net
 !api.github.com
 !2001:67c:4e8::/48
 !2001:b28:f23c::/47
