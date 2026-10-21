@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-20T23:43:25.611632+00:00",
+  "generated_at": "2026-10-21T01:00:53.787966+00:00",
   "repository": {
     "owner": "sip-it",
     "name": "build_rsc",
@@ -78,8 +78,8 @@
       "optional": true,
       "source_url": "https://raw.githubusercontent.com/sip-it/build_rsc/self-list/self-list.txt",
       "geoip_entries": 18,
-      "geosite_entries": 277,
-      "geosite_exact_domains_for_match_subdomain": 277,
+      "geosite_entries": 276,
+      "geosite_exact_domains_for_match_subdomain": 276,
       "geoip_exclusions": 4,
       "geosite_exclusions": 1,
       "self_geoip_entries_excluded": 0,
@@ -113,7 +113,7 @@
       "match_subdomain_entries_removed": 1
     },
     "combined_rsc_domains": {
-      "entries": 607,
+      "entries": 606,
       "pruned_redundant_children": 153,
       "simplify_domains_for_match_subdomain": true
     }
