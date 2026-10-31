@@ -1,5 +1,5 @@
 # Combined MikroTik RSC generated from runetfreedom/community sources
-# Generated at 2026-10-31T12:46:01.669289+00:00
+# Generated at 2026-10-31T21:43:06.884666+00:00
 
 # geoip:ru-blocked-community
 /ip firewall address-list remove [find where list="antifilter-community" comment="src=github:geoip:ru-blocked-community"]
@@ -1159,6 +1159,7 @@ add list="antifilter-community" address="oasis.app" comment="src=github:geosite:
 add list="antifilter-community" address="omv-extras.org" comment="src=github:geosite:antifilter-download-community"
 add list="antifilter-community" address="onlineradiobox.com" comment="src=github:geosite:antifilter-download-community"
 add list="antifilter-community" address="onlinesim.ru" comment="src=github:geosite:antifilter-download-community"
+add list="antifilter-community" address="openrouter.ai" comment="src=github:geosite:antifilter-download-community"
 add list="antifilter-community" address="openwrt.wk.cz" comment="src=github:geosite:antifilter-download-community"
 add list="antifilter-community" address="orbit-games.com" comment="src=github:geosite:antifilter-download-community"
 add list="antifilter-community" address="os.mbed.com" comment="src=github:geosite:antifilter-download-community"

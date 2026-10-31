@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-31T12:46:01.669289+00:00",
+  "generated_at": "2026-10-31T21:43:06.884666+00:00",
   "repository": {
     "owner": "sip-it",
     "name": "build_rsc",
@@ -62,8 +62,8 @@
     },
     "geosite": {
       "antifilter-download-community": {
-        "entries": 483,
-        "exact_domains_for_match_subdomain": 484,
+        "entries": 484,
+        "exact_domains_for_match_subdomain": 485,
         "skipped": {},
         "duplicates_skipped": 0,
         "match_subdomain_duplicates_skipped": 0,
@@ -94,9 +94,9 @@
     },
     "dns_adlist": {
       "category": "category-ads-all",
-      "entries": 148867,
+      "entries": 179173,
       "skipped": {
-        "invalid_domain": 5
+        "invalid_domain": 3
       },
       "source_url": "https://raw.githubusercontent.com/runetfreedom/russia-blocked-geosite/release/category-ads-all.txt"
     },
@@ -113,7 +113,7 @@
       "match_subdomain_entries_removed": 1
     },
     "combined_rsc_domains": {
-      "entries": 606,
+      "entries": 607,
       "pruned_redundant_children": 153,
       "simplify_domains_for_match_subdomain": true
     }
